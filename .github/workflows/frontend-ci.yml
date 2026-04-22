@@ -1,12 +1,8 @@
-frontend-ci.ymlname: Frontend CI
+name: Frontend CI
 
 on:
   push:
-    paths:
-      - 'pharmacy-app/**'
   pull_request:
-    paths:
-      - 'pharmacy-app/**'
 
 jobs:
   frontend:
@@ -20,7 +16,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
@@ -38,4 +34,3 @@ jobs:
 
       - name: Build Project
         run: npm run build
-        
