@@ -1,4 +1,4 @@
-name: Frontend CI
+frontend-ci.ymlname: Frontend CI
 
 on:
   push:
@@ -38,3 +38,4 @@ jobs:
 
       - name: Build Project
         run: npm run build
+        
