@@ -61,6 +61,9 @@ const makeValidationSummary = (
 const makeMedicineValidation = (
   o: Partial<MedicineValidationDto> = {}
 ): MedicineValidationDto => ({
+  hasAllergy: o.hasAllergy ?? false,
+  hasInteraction: o.hasInteraction ?? false,
+  severity: o.severity ?? 'None',
   drugAllergy: { isPresent: false, overallSeverity: null, allergies: [] },
   drugInteraction: { isPresent: false, overallSeverity: null, interactingWith: [] },
   lowStock: { isPresent: false, severity: null, requiredQty: 0, availableQty: 0, message: null },
@@ -70,6 +73,7 @@ const makeMedicineValidation = (
 const makePharmacistReview = (
   o: Partial<PharmacistReviewDto> = {}
 ): PharmacistReviewDto => ({
+  status: 'Pending',
   decision: 'Pending',
   reviewedBy: null,
   reviewedAt: null,
@@ -80,19 +84,35 @@ const makePharmacistReview = (
 const makeMedicine = (
   o: Partial<PrescriptionMedicineDto> = {}
 ): PrescriptionMedicineDto => ({
+  lineId: randomId(),
   prescriptionMedicineId: randomId(),
   productId: 'prod-001',
+  productName: 'Amoxicillin',
   name: 'Amoxicillin',
   strength: '500 mg',
+  instructions: 'Take one capsule twice daily after meals',
   prescribedQuantity: 30,
+  quantityPrescribed: 30,
   dispensedQuantity: 0,
+  quantityDispensed: 0,
   totalRefillsAuthorized: 2,
+  refillsAllowed: 2,
   refillsRemaining: 2,
   frequency: 'BID',
   daysSupply: 10,
+  durationDays: 10,
   endDate: null,
   instruction: 'Take one capsule twice daily after meals',
+  quantityApprovedPerFill: null,
   validation: makeMedicineValidation(),
+  review: {
+    status: 'Pending',
+    decision: 'Pending',
+    reviewedBy: null,
+    reviewedAt: null,
+    notes: null,
+    overrideReason: null,
+  },
   pharmacistReview: makePharmacistReview(),
   ...o,
 });
@@ -104,10 +124,12 @@ const makeDetails = (
   patientId: 'p-001',
   patientName: 'John Doe',
   prescriber: makePrescriber(),
+  prescriberName: 'Dr. Who',
   createdAt: new Date().toISOString(),
   expiresAt: new Date(Date.now() + 7 * 86400000).toISOString(),
   status: 'Active',
   isRefillable: true,
+  medicineCount: 2,
   medicines: [makeMedicine(), makeMedicine({ name: 'Ibuprofen', strength: '200 mg' })],
   ...o,
 });

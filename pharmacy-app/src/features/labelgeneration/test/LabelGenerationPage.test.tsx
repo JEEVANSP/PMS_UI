@@ -2,6 +2,26 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import LabelGenerationPage from "../components/LabelGeneration";
 
+type SelectedLabelDetails = {
+  dispenseId: string;
+  prescriptionId: string;
+  patientId: string;
+  patientName: string;
+  dispenseDate?: string;
+  status?: string;
+  pharmacistId?: string;
+  items: Array<{ id: number }>;
+};
+
+type QueueListProps = {
+  onSelect: (prescriptionId: string, patientId: string) => void;
+};
+
+type LabelPreviewProps = {
+  onPrint: () => void;
+  onDownload: () => void;
+};
+
 /* ---------------- HOISTED MOCKS ---------------- */
 
 const toastMock = vi.hoisted(() => ({
@@ -33,26 +53,22 @@ vi.mock("html2canvas", () => ({
 /* ---------------- jsPDF ---------------- */
 
 vi.mock("jspdf", () => ({
-  default: vi.fn(() => {
-    return function () {
-      return {
-        internal: {
-          pageSize: {
-            getWidth: () => 200,
-            getHeight: () => 200,
-          },
-        },
-        addPage: vi.fn(),
-        addImage: vi.fn(),
-        save: saveMock,
-      };
-    };
-  }),
+  default: vi.fn().mockImplementation(() => ({
+    internal: {
+      pageSize: {
+        getWidth: () => 200,
+        getHeight: () => 200,
+      },
+    },
+    addPage: vi.fn(),
+    addImage: vi.fn(),
+    save: saveMock,
+  })),
 }));
 
 /* ---------------- STATE ---------------- */
 
-let selected: any = null;
+let selected: SelectedLabelDetails | null = null;
 
 const mockSelectById = vi.fn((id: string, patientId: string) => {
   selected = {
@@ -89,7 +105,7 @@ vi.mock("@labels/hooks/useLabelPrescriptionDetails", () => ({
 /* ---------------- COMPONENT MOCKS ---------------- */
 
 vi.mock("@labels/components/LabelQueueList", () => ({
-  LabelQueueList: ({ onSelect }: any) => (
+  LabelQueueList: ({ onSelect }: QueueListProps) => (
     <button data-testid="select-btn" onClick={() => onSelect("RX-001", "P-001")}>
       Select
     </button>
@@ -97,7 +113,7 @@ vi.mock("@labels/components/LabelQueueList", () => ({
 }));
 
 vi.mock("@labels/components/LabelPreview", () => ({
-  LabelPreview: ({ onPrint, onDownload }: any) => (
+  LabelPreview: ({ onPrint, onDownload }: LabelPreviewProps) => (
     <div>
       <button data-testid="print-btn" onClick={onPrint}>
         Print
@@ -192,7 +208,7 @@ describe("LabelGenerationPage", () => {
 
     const openSpy = vi
       .spyOn(window, "open")
-      .mockReturnValue(mockWindow as any);
+      .mockReturnValue(mockWindow as unknown as Window);
 
     render(<LabelGenerationPage />);
     fireEvent.click(screen.getByTestId("print-btn"));
@@ -225,7 +241,9 @@ describe("LabelGenerationPage", () => {
 
     fireEvent.click(screen.getByTestId("download-btn"));
 
-    expect(saveMock).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(saveMock).toHaveBeenCalledTimes(1);
+    });
     expect(toastMock.success).toHaveBeenCalled();
 
     document.body.removeChild(label);

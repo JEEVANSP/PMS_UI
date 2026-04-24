@@ -5,15 +5,50 @@ import {
   getPaymentModeBreakdown,
   getPaymentTransactions,
   type Period,
+  type PaymentKpiSummaryDto,
+  type PaymentStatus,
   type PaymentTransactionsResponseDto,
+  type PaymentTransactionsQuery,
+  type PaymentTransactionItemDto,
 } from "@api/payments.api";
+import type { ServerTableQuery } from "@components/common/Table/Table";
 
 const toISODate = (value: string) => {
   const t = value.indexOf("T");
   return t > 0 ? value.slice(0, t) : value;
 };
 
-const SORT_MAP: Record<string, any> = {
+type DashboardSortKey =
+  "id" | "patientname" | "rxid" | "amount" | "mode" | "status" | "timestamp";
+
+type DashboardSummary = Pick<
+  PaymentKpiSummaryDto,
+  | "totalCollected"
+  | "patientCollected"
+  | "insuranceCollected"
+  | "totalPending"
+  | "pendingCount"
+> & {
+  vs: {
+    totalCollectedDeltaPct: number;
+    patientCollectedDeltaPct: number;
+    insuranceCollectedDeltaPct: number;
+    pendingDeltaPct: number;
+  };
+};
+
+type TrendDatum = {
+  day: string;
+  patient: number;
+  insurance: number;
+};
+
+type ModeDatum = {
+  name: string;
+  value: number;
+};
+
+const SORT_MAP: Record<string, DashboardSortKey> = {
   id: "id",
   patientName: "patientname",
   rxId: "rxid",
@@ -27,23 +62,23 @@ export function usePaymentDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>("week");
 
   // KPI summary
-  const [summary, setSummary] = useState<any>(null);
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
 
   // Trend data
-  const [trendData, setTrendData] = useState<any[]>([]);
+  const [trendData, setTrendData] = useState<TrendDatum[]>([]);
   const [trendLoading, setTrendLoading] = useState(false);
 
   // Mode breakdown (donut)
-  const [modeData, setModeData] = useState<any[]>([]);
+  const [modeData, setModeData] = useState<ModeDatum[]>([]);
   const [modeLoading, setModeLoading] = useState(false);
 
   // Transactions table
-  const [tableRows, setTableRows] = useState<any[]>([]);
+  const [tableRows, setTableRows] = useState<PaymentTransactionItemDto[]>([]);
   const [tableTotal, setTableTotal] = useState(0);
   const [tableLoading, setTableLoading] = useState(false);
 
-  const initialQuery = {
+  const initialQuery: ServerTableQuery = {
     pageNumber: 1,
     pageSize: 8,
     searchTerm: "",
@@ -131,15 +166,27 @@ export function usePaymentDashboard() {
   }, [selectedPeriod]);
 
   // Handle table server-side query
-  const handleServerQueryChange = useCallback(async (q: any) => {
+  const handleServerQueryChange = useCallback(async (q: ServerTableQuery) => {
     try {
       setTableLoading(true);
 
       const sortKey = SORT_MAP[String(q.sortBy)] ?? "timestamp";
       const sortDir = q.sortDirection ?? "desc";
 
-      const status = q.columnFilters["status"] || "all";
-      const mode = q.columnFilters["mode"] || "all";
+      const rawStatus = q.columnFilters["status"] || "all";
+      const status: PaymentTransactionsQuery["status"] =
+        rawStatus === "Cleared" || rawStatus === "Pending" || rawStatus === "Failed"
+          ? (rawStatus as PaymentStatus)
+          : "all";
+      const rawMode = q.columnFilters["mode"] || "all";
+      const mode: PaymentTransactionsQuery["mode"] =
+        rawMode === "Cash" ||
+        rawMode === "UPI" ||
+        rawMode === "Card" ||
+        rawMode === "Bank Transfer" ||
+        rawMode === "Insurance"
+          ? rawMode
+          : "all";
 
       const filterDate = q.columnFilters["timestamp"]
         ? toISODate(q.columnFilters["timestamp"])

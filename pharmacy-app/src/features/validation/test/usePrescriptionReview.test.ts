@@ -112,6 +112,14 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { usePrescriptionReview } from "../hooks/usePrescriptionReview";
+import type { RootState } from "@store/index";
+import type { PrescriptionLineReviewDraft } from "@prescription/domain/model";
+import type { UnknownAction } from "@reduxjs/toolkit";
+
+type ReviewAction = UnknownAction & {
+  payload?: unknown;
+  error?: unknown;
+};
 
 // ---------------- MOCK REDUX ----------------
 const mockDispatch = vi.fn();
@@ -127,7 +135,7 @@ const mockState = {
 
 vi.mock("react-redux", () => ({
   useDispatch: () => mockDispatch,
-  useSelector: (selector: any) => selector(mockState),
+  useSelector: (selector: (state: RootState) => unknown) => selector(mockState as RootState),
 }));
 
 // ---------------- MOCK SLICE ----------------
@@ -135,9 +143,11 @@ vi.mock("@store/prescription/prescriptionSlice", () => {
   const mockThunk = vi.fn();
 
   // attach matcher like RTK does
-  (mockThunk as any).fulfilled = {
-    match: (action: any) => action.type.endsWith("/fulfilled"),
-  };
+  Object.assign(mockThunk, {
+    fulfilled: {
+      match: (action: ReviewAction) => action.type.endsWith("/fulfilled"),
+    },
+  });
 
   return {
     fetchPrescriptionDetails: vi.fn((payload) => ({
@@ -221,10 +231,10 @@ describe("usePrescriptionReview", () => {
       usePrescriptionReview("RX-1", "PAT-1")
     );
 
-    let response: any;
+    let response: Awaited<ReturnType<typeof result.current.submitReview>> | undefined;
 
     await act(async () => {
-      response = await result.current.submitReview([], "etag-1");
+      response = await result.current.submitReview([] as PrescriptionLineReviewDraft[], "etag-1");
     });
 
     expect(reviewPrescription).toHaveBeenCalled(); // thunk called
@@ -251,10 +261,10 @@ describe("usePrescriptionReview", () => {
       usePrescriptionReview("RX-1", "PAT-1")
     );
 
-    let response: any;
+    let response: Awaited<ReturnType<typeof result.current.submitReview>> | undefined;
 
     await act(async () => {
-      response = await result.current.submitReview([], "etag-old");
+      response = await result.current.submitReview([] as PrescriptionLineReviewDraft[], "etag-old");
     });
 
     expect(response).toEqual({
@@ -277,10 +287,10 @@ describe("usePrescriptionReview", () => {
       usePrescriptionReview("RX-1", "PAT-1")
     );
 
-    let response: any;
+    let response: Awaited<ReturnType<typeof result.current.submitReview>> | undefined;
 
     await act(async () => {
-      response = await result.current.submitReview([], "etag");
+      response = await result.current.submitReview([] as PrescriptionLineReviewDraft[], "etag");
     });
 
     expect(response).toEqual({
@@ -301,10 +311,10 @@ describe("usePrescriptionReview", () => {
       usePrescriptionReview("RX-1", "PAT-1")
     );
 
-    let response: any;
+    let response: Awaited<ReturnType<typeof result.current.submitReview>> | undefined;
 
     await act(async () => {
-      response = await result.current.submitReview([], "etag");
+      response = await result.current.submitReview([] as PrescriptionLineReviewDraft[], "etag");
     });
 
     expect(response).toEqual({
@@ -323,8 +333,10 @@ describe("usePrescriptionReview", () => {
 
     await act(async () => {
       try {
-        await result.current.submitReview([], "etag");
-      } catch {}
+        await result.current.submitReview([] as PrescriptionLineReviewDraft[], "etag");
+      } catch {
+        // intentional
+      }
     });
 
     expect(result.current.submitting).toBe(false);

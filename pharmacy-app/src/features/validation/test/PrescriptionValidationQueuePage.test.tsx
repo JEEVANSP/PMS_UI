@@ -242,7 +242,10 @@ describe("PrescriptionValidationQueuePage", () => {
     fireEvent.click(screen.getByText("Review"));
 
     expect(mockNavigate).toHaveBeenCalledWith(
-      expect.stringContaining("RX-123")
+      expect.stringContaining("RX-123"),
+      {
+        state: { patientId: "P-1" },
+      }
     );
   });
 

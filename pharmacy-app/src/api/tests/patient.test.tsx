@@ -8,6 +8,7 @@ import {
   searchPatients,
   updatePatient,
 } from "../patient";
+import type { CreatePatientRequest } from "@patient/types/patienttype";
 
 vi.mock("../axiosInstance", () => ({
   default: {
@@ -199,7 +200,7 @@ describe("patient API", () => {
 
   describe("createPatient", () => {
     it("posts the new insurance DTO shape", async () => {
-      const request = {
+      const request: CreatePatientRequest = {
         fullName: "John Doe",
         dob: "2026-03-11T12:18:08.797Z",
         gender: "Male",

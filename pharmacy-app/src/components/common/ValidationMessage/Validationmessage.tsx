@@ -1,4 +1,3 @@
-import React from "react";
 import { AlertCircle, Info, CheckCircle, AlertTriangle } from "lucide-react";
 
 type ValidationMessageProps = {

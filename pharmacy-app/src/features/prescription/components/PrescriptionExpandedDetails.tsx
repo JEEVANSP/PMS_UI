@@ -31,6 +31,28 @@ export default function PrescriptionExpandedDetails({
   }
  
   const age = calculateAgeFromDob(patient?.dob);
+  const medicines = (details.medicines ?? []).map((med, idx) => {
+    const value = med as PrescriptionLine & {
+      prescriptionMedicineId?: string;
+      prescribedQuantity?: number;
+      daysSupply?: number;
+      instruction?: string | null;
+      pharmacistReview?: { decision?: string | null };
+      review?: { status?: string | null };
+    };
+
+    return {
+      key: value.lineId ?? value.prescriptionMedicineId ?? `line-${idx + 1}`,
+      name: value.name,
+      strength: value.strength,
+      quantityPrescribed: value.quantityPrescribed ?? value.prescribedQuantity ?? 0,
+      durationDays: value.durationDays ?? value.daysSupply ?? 0,
+      refillsRemaining: value.refillsRemaining ?? 0,
+      quantityApprovedPerFill: value.quantityApprovedPerFill,
+      instructions: value.instructions ?? value.instruction ?? "",
+      reviewStatus: value.review?.status ?? value.pharmacistReview?.decision ?? "Pending",
+    };
+  });
  
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 p-8">
@@ -143,15 +165,15 @@ export default function PrescriptionExpandedDetails({
               </div>
  
               <div className="bg-white/20 px-3 py-1 rounded-full text-white text-sm font-bold">
-                {details.medicines?.length || 0} items
+                {medicines.length} items
               </div>
             </div>
  
             <div className="p-5 space-y-5 flex-1 min-h-0 max-h-96 overflow-auto">
-              {details.medicines?.map(
-                (med: PrescriptionLine, idx) => (
+              {medicines.map(
+                (med, idx) => (
                   <div
-                    key={med.lineId}
+                    key={med.key}
                     className="border border-emerald-200 rounded-xl p-5 bg-emerald-50/40 shadow-sm"
                   >
                     <div className="flex justify-between mb-3">
@@ -213,7 +235,7 @@ export default function PrescriptionExpandedDetails({
                           Review
                         </div>
                         <div className="font-bold">
-                          {med.review.status}
+                          {med.reviewStatus}
                         </div>
                       </div>
                     </div>
@@ -232,7 +254,7 @@ export default function PrescriptionExpandedDetails({
                 )
               )}
  
-              {!details.medicines?.length && (
+              {!medicines.length && (
                 <div className="text-gray-500">
                   No medicines found.
                 </div>

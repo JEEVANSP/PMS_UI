@@ -22,16 +22,18 @@ import {
 type Prescription = { id: string; name: string };
 
 describe("usePatientPrescriptions", () => {
-  const firstPage: { items: Prescription[]; continuationToken: string | null } = {
+  const firstPage = {
     items: [
       { id: "p1", name: "Med A" },
       { id: "p2", name: "Med B" },
     ],
-    continuationToken: "token-2",
+    pageNumber: 1,
+    totalPages: 2,
   };
-  const secondPage: { items: Prescription[]; continuationToken: string | null } = {
+  const secondPage = {
     items: [{ id: "p3", name: "Med C" }],
-    continuationToken: null,
+    pageNumber: 2,
+    totalPages: 2,
   };
 
   let getPrescriptionsByPatient: ReturnType<
@@ -56,7 +58,7 @@ describe("usePatientPrescriptions", () => {
       expect(result.current.prescriptionsLoading).toBe(false);
     });
 
-    expect(getPrescriptionsByPatient).toHaveBeenCalledWith("patient-1", 2, null);
+    expect(getPrescriptionsByPatient).toHaveBeenCalledWith("patient-1", 1, 2);
     expect(result.current.prescriptions).toEqual(firstPage.items);
     expect(result.current.hasMore).toBe(true);
   });
@@ -94,7 +96,7 @@ describe("usePatientPrescriptions", () => {
     });
 
     expect(getPrescriptionsByPatient).toHaveBeenCalledTimes(2);
-    expect(getPrescriptionsByPatient).toHaveBeenLastCalledWith("patient-1", 2, "token-2");
+    expect(getPrescriptionsByPatient).toHaveBeenLastCalledWith("patient-1", 2, 2);
     expect(result.current.prescriptions).toEqual([
       ...firstPage.items,
       ...secondPage.items,
@@ -120,13 +122,13 @@ describe("usePatientPrescriptions", () => {
   });
 
   it("prevents race conditions when switching patients quickly", async () => {
-    let resolveFirst: (v: { items: Prescription[]; continuationToken: string | null }) => void;
-    let resolveSecond: (v: { items: Prescription[]; continuationToken: string | null }) => void;
+    let resolveFirst: (v: { items: Prescription[]; pageNumber: number; totalPages: number }) => void;
+    let resolveSecond: (v: { items: Prescription[]; pageNumber: number; totalPages: number }) => void;
 
-    const firstPromise = new Promise<{ items: Prescription[]; continuationToken: string | null }>((res) => {
+    const firstPromise = new Promise<{ items: Prescription[]; pageNumber: number; totalPages: number }>((res) => {
       resolveFirst = res;
     });
-    const secondPromise = new Promise<{ items: Prescription[]; continuationToken: string | null }>((res) => {
+    const secondPromise = new Promise<{ items: Prescription[]; pageNumber: number; totalPages: number }>((res) => {
       resolveSecond = res;
     });
 
@@ -146,13 +148,15 @@ describe("usePatientPrescriptions", () => {
     await act(async () =>
       resolveSecond!({
         items: [{ id: "pX", name: "X" }],
-        continuationToken: null,
+        pageNumber: 1,
+        totalPages: 1,
       }),
     );
     await act(async () =>
       resolveFirst!({
         items: [{ id: "p1", name: "A" }],
-        continuationToken: null,
+        pageNumber: 1,
+        totalPages: 1,
       }),
     );
 

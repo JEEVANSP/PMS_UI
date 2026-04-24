@@ -177,6 +177,7 @@ export const reviewPrescription = createAsyncThunk<
 export interface PrescriptionState {
   items: PrescriptionSummary[];
   selected?: SelectedPrescription;
+  continuationToken?: string | null;
   pageNumber: number;
   pageSize: number;
   totalCount: number;

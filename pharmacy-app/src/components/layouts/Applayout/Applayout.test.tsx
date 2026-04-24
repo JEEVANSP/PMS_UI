@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, type Mock } from 'vitest';
 import AppLayout from './Applayout';
-import React from 'react';
 
 // ---------- MOCK react-redux ----------
 vi.mock('react-redux', () => ({
@@ -43,7 +42,7 @@ describe('AppLayout', () => {
   });
 
   it('returns null when user is not present', () => {
-    (useSelector as vi.Mock).mockImplementation((selector) =>
+    (useSelector as unknown as Mock).mockImplementation((selector: (state: { auth: { user: null }; ui: { sidebarCollapsed: boolean } }) => unknown) =>
       selector({
         auth: { user: null },
         ui: { sidebarCollapsed: false },
@@ -62,7 +61,7 @@ describe('AppLayout', () => {
       avatarUrl: 'avatar.png',
     };
 
-    (useSelector as vi.Mock).mockImplementation((selector) =>
+    (useSelector as unknown as Mock).mockImplementation((selector: (state: { auth: { user: typeof mockUser }; ui: { sidebarCollapsed: boolean } }) => unknown) =>
       selector({
         auth: { user: mockUser },
         ui: { sidebarCollapsed: false },

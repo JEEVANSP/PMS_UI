@@ -41,7 +41,7 @@ const isCanceledRequest = (error: unknown): boolean => {
 const toSummaryDto = (
   dto: PrescriptionDetailsDto | PrescriptionSummaryDto,
 ): PrescriptionSummaryDto => {
-  if ("medicineCount" in dto) {
+  if (!("prescriber" in dto)) {
     return dto;
   }
 

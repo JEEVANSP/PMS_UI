@@ -24,10 +24,12 @@ export default function PrescriptionValidationQueuePage() {
     }
   }, [location.state, refetch]);
 
-  const sorted = useMemo(
-    () => [...rows].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
-    [rows]
-  );
+  const sorted = useMemo(() => {
+    const toTimestamp = (value: Date | string) =>
+      value instanceof Date ? value.getTime() : new Date(value).getTime();
+
+    return [...rows].sort((a, b) => toTimestamp(a.createdAt) - toTimestamp(b.createdAt));
+  }, [rows]);
 
   return (
     <div className="max-w-5xl mx-auto p-4 space-y-6">
@@ -84,6 +86,14 @@ export default function PrescriptionValidationQueuePage() {
                         value={`${rx.medicineCount} item${rx.medicineCount === 1 ? "" : "s"}`}
                       />
                       <KV label="Submitted" value={formatDate(rx.createdAt)} />
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {getValidationBadges(rx).map((badge) => (
+                        <Badge key={badge.label} tone={badge.tone}>
+                          {badge.label}
+                        </Badge>
+                      ))}
                     </div>
                   </div>
 
@@ -146,4 +156,40 @@ function ListSkeleton() {
       ))}
     </div>
   );
+}
+
+function getValidationBadges(
+  rx: PrescriptionSummary & {
+    validationSummary?: {
+      highSeverityCount: number;
+      moderateCount: number;
+      lowCount: number;
+    };
+  }
+) {
+  const summary = rx.validationSummary;
+
+  if (!summary) {
+    return [{ label: "No Issues", tone: "gray" as const }];
+  }
+
+  const badges: Array<{ label: string; tone: "amber" | "gray" }> = [];
+
+  if (summary.highSeverityCount > 0) {
+    badges.push({ label: `${summary.highSeverityCount} Critical`, tone: "amber" });
+  }
+
+  if (summary.moderateCount > 0) {
+    badges.push({ label: `${summary.moderateCount} Moderate`, tone: "gray" });
+  }
+
+  if (summary.lowCount > 0) {
+    badges.push({ label: `${summary.lowCount} Info`, tone: "gray" });
+  }
+
+  if (badges.length === 0) {
+    badges.push({ label: "No Issues", tone: "gray" });
+  }
+
+  return badges;
 }

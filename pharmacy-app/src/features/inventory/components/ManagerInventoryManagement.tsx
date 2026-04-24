@@ -5,7 +5,6 @@ import {
   ChevronDown,
   ChevronRight,
   ClipboardCheck,
-  LayoutDashboard,
   Package,
   Plus,
   RotateCcw,
@@ -745,15 +744,24 @@ function ExpiryManagement({
   products: ManagerProductInventoryDto[];
   onSuccess: (title: string, message: string) => void;
 }) {
+  type LotRisk = "expired" | "critical" | "warning" | "ok";
+  type EnrichedLot = ManagerInventoryLotDto & {
+    productName: string;
+    strength: string;
+    form: string;
+    days: number;
+    risk: LotRisk;
+  };
+
   const [filter, setFilter] = useState<"all" | "expired" | "critical" | "warning">("all");
-  const [confirmAction, setConfirmAction] = useState<{ type: "return" | "dispose"; lot: ManagerInventoryLotDto & { productName: string; strength: string; form: string; days: number; risk: "expired" | "critical" | "warning" | "ok" } } | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ type: "return" | "dispose"; lot: EnrichedLot } | null>(null);
   const [markedReturnedLotIds, setMarkedReturnedLotIds] = useState<Set<string>>(new Set());
   const [markedDisposedLotIds, setMarkedDisposedLotIds] = useState<Set<string>>(new Set());
 
-  const enrichedLots = useMemo(() => products
+  const enrichedLots = useMemo<EnrichedLot[]>(() => products
     .flatMap((product) => product.inventoryLots.map((lot) => {
       const days = lot.expiry ? getDaysUntilExpiry(lot.expiry) : Number.POSITIVE_INFINITY;
-      const risk = !lot.expiry ? "ok" : days <= 0 ? "expired" : days <= 14 ? "critical" : days <= 60 ? "warning" : "ok";
+      const risk: LotRisk = !lot.expiry ? "ok" : days <= 0 ? "expired" : days <= 14 ? "critical" : days <= 60 ? "warning" : "ok";
       return { ...lot, productName: product.name, strength: product.strength, form: product.form, days, risk };
     }))
     .filter((lot) => !markedReturnedLotIds.has(lot.id) && !markedDisposedLotIds.has(lot.id))

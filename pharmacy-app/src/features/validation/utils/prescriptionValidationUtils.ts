@@ -31,6 +31,36 @@ export function mapInteractionLevel(
   }
 }
 
+export function computeValidation(
+  medicine: {
+    prescribedQuantity?: number | null;
+    validation?: {
+      drugAllergy?: {
+        overallSeverity?: ValidationSeverity | string | null;
+      };
+      inventory?: {
+        isPresent?: boolean | null;
+        reservableNow?: number | null;
+      };
+    };
+  },
+  fallbackRequiredQty?: number
+): "Blocked" | "Partial" | "OK" {
+  if (medicine.validation?.drugAllergy?.overallSeverity === "High") {
+    return "Blocked";
+  }
+
+  const requiredQty = medicine.prescribedQuantity ?? fallbackRequiredQty ?? 0;
+  const inventory = medicine.validation?.inventory;
+  const reservableNow = inventory?.reservableNow;
+
+  if (inventory?.isPresent && typeof reservableNow === "number" && reservableNow < requiredQty) {
+    return "Partial";
+  }
+
+  return "OK";
+}
+
 export function isReviewedDecision(
   decision: string | null | undefined,
 ): decision is Extract<PrescriptionReviewStatus, "Approved" | "Rejected"> {

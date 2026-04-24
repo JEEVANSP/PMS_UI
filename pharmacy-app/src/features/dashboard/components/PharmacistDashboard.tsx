@@ -38,7 +38,7 @@ export default function PharmacistDashboard() {
 
   const todaysPrescriptions = useMemo(() => {
     const today = new Date();
-    return allPrescriptions.filter(p => isSameDay(p.createdAt, today));
+    return allPrescriptions.filter((p) => isSameDay(new Date(p.createdAt), today));
   }, [allPrescriptions]);
 
   /* ---------------------------------- */

@@ -1,12 +1,21 @@
 import { useState, useMemo } from "react";
 import { getAuditLogs, type AuditListItemDto } from "@api/audit";
 
+type AuditTableQuery = {
+  pageNumber: number;
+  pageSize: number;
+  searchTerm?: string;
+  sortBy?: string;
+  sortDirection?: "asc" | "desc";
+  columnFilters: Record<string, string>;
+};
+
 export function useAuditLogs() {
   const [data, setData] = useState<AuditListItemDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
 
-  async function handleServerQueryChange(query: any) {
+  async function handleServerQueryChange(query: AuditTableQuery) {
     setLoading(true);
 
     const result = await getAuditLogs({

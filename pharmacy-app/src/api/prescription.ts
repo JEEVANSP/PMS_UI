@@ -43,7 +43,17 @@ export interface PrescriptionSummaryDto {
   patientName: string;
   prescriberName: string;
   createdAt: string;
-  status: "Created" | "Active" | "Cancelled" | "Completed";
+  expiresAt?: string;
+  alerts?: boolean;
+  status:
+    | "Created"
+    | "Active"
+    | "Cancelled"
+    | "Completed"
+    | "CREATED"
+    | "ACTIVE"
+    | "CANCELLED"
+    | "COMPLETED";
   medicineCount: number;
   validationSummary?: PrescriptionValidationSummaryDto;
 }
@@ -68,29 +78,53 @@ export interface PrescriptionLineValidationDto {
       message: string;
     }[];
   };
+  inventory?: {
+    isPresent?: boolean | null;
+    severity?: "High" | "Moderate" | "Low" | "None" | null;
+    requiredQty?: number;
+    reservableNow?: number | null;
+    message?: string | null;
+  };
+  lowStock?: {
+    isPresent?: boolean;
+    severity?: "High" | "Moderate" | "Low" | "None" | null;
+    requiredQty?: number;
+    availableQty?: number;
+    message?: string | null;
+  };
 }
 
 export interface PrescriptionLineReviewDto {
-  status: "Pending" | "Approved" | "Rejected";
+  status?: "Pending" | "Approved" | "Rejected";
+  decision?: "Pending" | "Approved" | "Rejected";
   reviewedBy?: string | null;
   reviewedAt?: string | null;
   notes?: string | null;
+  overrideReason?: string | null;
 }
 
 export interface PrescriptionLineDto {
   id?: string;
   prescriptionLineId?: string;
+  prescriptionMedicineId?: string;
   productId: string;
-  productName: string;
+  productName?: string;
+  name?: string;
   strength: string;
   frequency: string;
   instructions?: string | null;
-  durationDays: number;
-  quantityPrescribed: number;
+  instruction?: string | null;
+  durationDays?: number;
+  daysSupply?: number;
+  quantityPrescribed?: number;
+  prescribedQuantity?: number;
   quantityApprovedPerFill?: number | null;
   quantityDispensed?: number;
+  dispensedQuantity?: number;
   refillsAllowed: number;
+  totalRefillsAuthorized?: number;
   refillsRemaining?: number;
+  endDate?: string | null;
   validation?: PrescriptionLineValidationDto;
   pharmacistReview?: PrescriptionLineReviewDto;
 }
@@ -100,9 +134,21 @@ export interface PrescriptionDetailsDto {
   patientId: string;
   patientName: string;
   prescriber: { id: string; name: string };
+  prescriberName: string;
   createdAt: string;
-  status: "Created" | "Active" | "Cancelled" | "Completed";
+  expiresAt?: string;
+  isRefillable?: boolean;
+  status:
+    | "Created"
+    | "Active"
+    | "Cancelled"
+    | "Completed"
+    | "CREATED"
+    | "ACTIVE"
+    | "CANCELLED"
+    | "COMPLETED";
   medicines: PrescriptionLineDto[];
+  medicineCount: number;
 }
 
 export interface PrescriptionListResponseDto {
@@ -177,7 +223,7 @@ type PatientPrescriptionHistoryResponse =
 function toSummaryDto(
   dto: PrescriptionDetailsDto | PrescriptionSummaryDto
 ): PrescriptionSummaryDto {
-  if ("medicineCount" in dto) return dto;
+  if (!("prescriber" in dto)) return dto;
   return {
     id: dto.id,
     patientId: dto.patientId,

@@ -138,7 +138,7 @@ export function useBilling() {
         etag: dispenseEtag,
       });
 
-      const { paymentId, etag: paymentEtag } = await recordPayment(
+      const { etag: paymentEtag } = await recordPayment(
         {
           patientId,
           dispenseId,
@@ -177,7 +177,7 @@ export function useBilling() {
       setPaymentStatus("idle");
       return { success: false };
     }
-  }, [paymentMethod, txnId]);
+  }, [paymentMethod, txnId, validateTxnId]);
 
   // ── Totals ────────────────────────────────────────────────────────────────
 

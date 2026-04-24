@@ -72,12 +72,12 @@ function mapLineDto(dto: PrescriptionLineDto, index: number): PrescriptionLine {
   return {
     lineId: getLineId(dto, index),
     productId: dto.productId,
-    name: dto.productName,
+    name: dto.productName ?? dto.name ?? "",
     strength: dto.strength,
     frequency: dto.frequency,
     instructions: dto.instructions ?? "",
-    durationDays: dto.durationDays,
-    quantityPrescribed: dto.quantityPrescribed,
+    durationDays: dto.durationDays ?? dto.daysSupply ?? 0,
+    quantityPrescribed: dto.quantityPrescribed ?? dto.prescribedQuantity ?? 0,
     quantityApprovedPerFill: dto.quantityApprovedPerFill ?? null,
     quantityDispensed: dto.quantityDispensed ?? 0,
     refillsAllowed: dto.refillsAllowed,
@@ -129,10 +129,10 @@ export function mapDetailsDto(dto: PrescriptionDetailsDto): PrescriptionDetails 
       id: dto.prescriber.id,
       name: dto.prescriber.name,
     },
-    prescriberName: dto.prescriber.name,
+    prescriberName: dto.prescriberName ?? dto.prescriber.name,
     createdAt: toDate(dto.createdAt),
     status: toStatus(dto.status),
-    medicineCount: medicines.length,
+    medicineCount: dto.medicineCount ?? medicines.length,
     medicines,
   };
 }

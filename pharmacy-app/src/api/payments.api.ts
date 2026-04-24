@@ -81,6 +81,15 @@ export interface PaymentModeBreakdownDto {
   breakdown: PaymentModeBreakdownItemDto[];
 }
 
+function normalizeBreakdownType(
+  value: unknown,
+  fallback: PaymentModeBreakdownDto["type"]
+): PaymentModeBreakdownDto["type"] {
+  return value === "Patient" || value === "Insurance" || value === "all"
+    ? value
+    : fallback;
+}
+
 /* ---------- Transactions (table) ---------- */
 
 export interface PaymentTransactionItemDto {
@@ -277,7 +286,7 @@ export async function getPaymentModeBreakdown(
 
     return {
       period: res.data?.period ?? period,
-      type: (res.data?.type as any) ?? type,
+      type: normalizeBreakdownType(res.data?.type, type),
       totalAmount: Number(res.data?.totalAmount ?? 0),
       breakdown: breakdown.map((b) => ({
         mode: b.mode,

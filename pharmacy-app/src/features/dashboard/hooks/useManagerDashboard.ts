@@ -195,13 +195,39 @@ import {
   getPaymentTrend,
   getPaymentTransactions,
   type Period,
+  type PaymentKpiSummaryDto,
+  type PaymentTransactionItemDto,
 } from "@api/payments.api";
+
+type ManagerSummary = Pick<
+  PaymentKpiSummaryDto,
+  | "totalCollected"
+  | "patientCollected"
+  | "insuranceCollected"
+  | "totalPending"
+  | "pendingCount"
+> | null;
+
+type TrendPoint = {
+  day: string;
+  patient: number;
+  insurance: number;
+};
+
+type RecentTransaction = {
+  id: string;
+  patient: string;
+  amount: number;
+  mode: string;
+  status: PaymentTransactionItemDto["status"];
+  time: string;
+};
 
 export function useManagerDashboard() {
   const [period, setPeriod] = useState<Period>("week");
 
   // ---------------- PAYMENT SUMMARY ----------------
-  const [summary, setSummary] = useState<any>(null);
+  const [summary, setSummary] = useState<ManagerSummary>(null);
 
   useEffect(() => {
     (async () => {
@@ -217,7 +243,7 @@ export function useManagerDashboard() {
   }, [period]);
 
   // ---------------- PAYMENT TREND ----------------
-  const [trendData, setTrendData] = useState<any[]>([]);
+  const [trendData, setTrendData] = useState<TrendPoint[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -233,7 +259,7 @@ export function useManagerDashboard() {
   }, [period]);
 
   // ---------------- RECENT TRANSACTIONS ----------------
-  const [recentTxns, setRecentTxns] = useState<any[]>([]);
+  const [recentTxns, setRecentTxns] = useState<RecentTransaction[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -266,8 +292,8 @@ export function useManagerDashboard() {
 
   const [productSample, setProductSample] = useState<InventoryProductDto[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
-  const [pendingLots, setPendingLots] = useState<any[]>([]);
-  const [expiringLots, setExpiringLots] = useState<any[]>([]);
+  const [pendingLots, setPendingLots] = useState<InventoryProductDto["inventoryLots"][number][]>([]);
+  const [expiringLots, setExpiringLots] = useState<InventoryProductDto["inventoryLots"][number][]>([]);
 
   useEffect(() => {
     (async () => {

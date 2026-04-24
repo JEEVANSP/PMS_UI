@@ -112,13 +112,13 @@ vi.mock("@components/common/Table/Table", () => {
             if (typeof col.render === "function") {
               const val = firstRow[col.key as keyof PrescriptionSummaryDto];
               return (
-                <div key={idx} data-testid={`col-${col.key}`}>
+                <div key={idx} data-testid={`col-${String(col.key)}`}>
                   {col.render(val, firstRow)}
                 </div>
               );
             }
             return (
-              <div key={idx} data-testid={`col-${col.key}`}>
+              <div key={idx} data-testid={`col-${String(col.key)}`}>
                 {String(firstRow[col.key as keyof PrescriptionSummaryDto] ?? "")}
               </div>
             );

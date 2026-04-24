@@ -153,7 +153,7 @@ export async function submitInsuranceClaim(
   dispenseId: string,
   patientId:  string,
   etag:       string
-): Promise<{ data: DispenseDetailsDto; headers: any; etag: string }> {
+): Promise<{ data: DispenseDetailsDto; headers: unknown; etag: string }> {
   try {
     const res = await api.post<DispenseDetailsDto>(
       ENDPOINTS.dispenseInsuranceClaim(dispenseId),

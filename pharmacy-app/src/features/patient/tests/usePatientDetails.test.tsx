@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import type { PatientDetailsDto } from '@patient/types/patienttype';
 import { usePatientDetails, type GetPatientDetailsFn } from '../hooks/usePatientDetails';
+import type { Mock } from 'vitest';
 
 // Helper to control async resolution deterministically
 function defer<T>() {
@@ -19,7 +20,7 @@ describe('usePatientDetails', () => {
     id: 'p-001',
     fullName: 'John Doe',
     dob: '1990-01-01',
-    gender: 'male',
+    gender: 'Male',
     phone: '+911234567890',
     address: '123 Street',
     allergies: [],
@@ -145,7 +146,7 @@ describe('usePatientDetails', () => {
     };
 
     // Next invocation resolves immediately with anotherPatient
-    (getDetailsFn as vi.Mock).mockResolvedValueOnce(anotherPatient);
+    (getDetailsFn as unknown as Mock).mockResolvedValueOnce(anotherPatient);
 
     await act(async () => {
       await hook.result.current.selectPatient('p-002');

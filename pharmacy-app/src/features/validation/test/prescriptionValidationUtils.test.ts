@@ -15,6 +15,9 @@ function createValidation(
   overrides?: Partial<MedicineValidationDto>
 ): MedicineValidationDto {
   return {
+    hasAllergy: overrides?.hasAllergy ?? false,
+    hasInteraction: overrides?.hasInteraction ?? false,
+    severity: overrides?.severity ?? "None",
     drugAllergy: {
       isPresent: false,
       overallSeverity: null,
@@ -40,20 +43,37 @@ function createMedicine(
   overrides?: Partial<PrescriptionMedicineDto>
 ): PrescriptionMedicineDto {
   return {
+    lineId: "MED-1",
     prescriptionMedicineId: "MED-1",
     productId: "PROD-1",
+    productName: "Paracetamol",
     name: "Paracetamol",
     strength: "500mg",
+    instructions: "Take after food",
     prescribedQuantity: 10,
+    quantityPrescribed: 10,
     dispensedQuantity: 0,
+    quantityDispensed: 0,
     totalRefillsAuthorized: 1,
+    refillsAllowed: 1,
     refillsRemaining: 1,
     frequency: "BID",
     daysSupply: 5,
+    durationDays: 5,
     endDate: null,
     instruction: "Take after food",
+    quantityApprovedPerFill: null,
     validation: createValidation(),
+    review: {
+      status: "Pending",
+      decision: "Pending",
+      reviewedBy: null,
+      reviewedAt: null,
+      notes: null,
+      overrideReason: null,
+    },
     pharmacistReview: {
+      status: "Pending",
       decision: "Pending",
       reviewedBy: null,
       reviewedAt: null,

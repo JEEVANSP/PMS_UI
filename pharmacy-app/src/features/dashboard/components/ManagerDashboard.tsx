@@ -425,10 +425,24 @@ function ModeIcon({ mode }: { mode: string }) {
   return <Icon className="h-4 w-4 text-gray-400" />;
 }
 
-function ChartTooltip({ active, payload, label }) {
+type ChartPayloadEntry = {
+  name?: string;
+  value?: number;
+  color?: string;
+};
+
+function ChartTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: ChartPayloadEntry[];
+  label?: string;
+}) {
   if (!active || !payload?.length) return null;
 
-  const total = payload.reduce((sum, e) => sum + (e.value ?? 0), 0);
+  const total = payload.reduce((sum: number, entry) => sum + (entry.value ?? 0), 0);
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs shadow-lg">
@@ -473,7 +487,15 @@ export default function ManagerDashboard() {
   });
 
   const attentionItems = useMemo(() => {
-    const items: any[] = [];
+    const items: Array<{
+      id: string;
+      dot: string;
+      title: string;
+      sub: string;
+      badge: string;
+      badgeClass: string;
+      nav: string;
+    }> = [];
 
     if (inventoryMetrics.outOfStock > 0) {
       items.push({
@@ -536,10 +558,10 @@ export default function ManagerDashboard() {
         </div>
 
         <div className="flex items-center gap-2">
-          {["today", "week", "month"].map((p) => (
+          {(["today", "week", "month"] as const).map((p) => (
             <button
               key={p}
-              onClick={() => setPeriod(p as any)}
+              onClick={() => setPeriod(p)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 p === period
                   ? "bg-blue-600 text-white shadow-sm"

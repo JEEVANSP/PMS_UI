@@ -54,8 +54,12 @@ export default function SessionTimeoutHandler() {
   // ✅ HARD RESET after logout (this fixes your last issue)
   useEffect(() => {
     if (!isAuthenticated) {
-      setShowWarning(false);
-      setCountdown(WARNING_Y_SEC);
+      const resetTimer = window.setTimeout(() => {
+        setShowWarning(false);
+        setCountdown(WARNING_Y_SEC);
+      }, 0);
+
+      return () => window.clearTimeout(resetTimer);
     }
   }, [isAuthenticated]);
 

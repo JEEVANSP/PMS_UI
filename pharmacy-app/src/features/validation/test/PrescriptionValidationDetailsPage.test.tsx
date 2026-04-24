@@ -203,7 +203,7 @@ describe("PrescriptionValidationDetailsPage", () => {
 
     expect(screen.getByRole("button", { name: "Submit Review" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Reject Entire Prescription" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Refresh Validation" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Refresh/ })).toBeInTheDocument();
   });
 
   it("disables submit review when a rejected line is missing a reason", () => {

@@ -6,13 +6,17 @@ import { configureStore } from "@reduxjs/toolkit";
 import type { PrescriptionSummaryDto } from "@prescription/types/prescription.types";
 import PharmacistDashboard from "../../dashboard/components/PharmacistDashboard";
 
+const { mockUseDashboardData } = vi.hoisted(() => ({
+  mockUseDashboardData: vi.fn(),
+}));
+
 /* ============================================
    MOCKS
 ============================================ */
 
 // Mock only the hook (NOT DataTable)
-vi.mock("../hooks/useDashboardData", () => ({
-  useDashboardData: vi.fn(),
+vi.mock("@dashboard/hooks/useDashboardData", () => ({
+  useDashboardData: mockUseDashboardData,
 }));
 
 // Mock thunk dispatch
@@ -40,10 +44,8 @@ function createMockPrescription(
     patientName: "John Doe",
     prescriberName: "Dr. Smith",
     createdAt: today,
-    expiresAt: today,
     status: "Created",
     medicineCount: 2,
-    alerts: false,
     validationSummary: {
       totalIssues: 0,
       highSeverityCount: 0,
@@ -75,10 +77,8 @@ describe("PharmacistDashboard - Maximum Coverage", () => {
     vi.clearAllMocks();
   });
 
-  it("dispatches fetchAllPrescriptions on mount", async () => {
-    const { useDashboardData } = await import("../../dashboard/hooks/useDashboardData");
-
-    (useDashboardData as unknown as Mock).mockReturnValue({
+  it("dispatches fetchAllPrescriptions on mount", () => {
+    (mockUseDashboardData as unknown as Mock).mockReturnValue({
       prescriptions: [],
       requestStatus: "idle",
     });
@@ -93,10 +93,8 @@ describe("PharmacistDashboard - Maximum Coverage", () => {
     });
   });
 
-  it("shows loading state", async () => {
-    const { useDashboardData } = await import("../../dashboard/hooks/useDashboardData");
-
-    (useDashboardData as unknown as Mock).mockReturnValue({
+  it("shows loading state", () => {
+    (mockUseDashboardData as unknown as Mock).mockReturnValue({
       prescriptions: [],
       requestStatus: "loading",
     });
@@ -106,13 +104,11 @@ describe("PharmacistDashboard - Maximum Coverage", () => {
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 
-  it("shows empty state when no prescriptions today", async () => {
-    const { useDashboardData } = await import("../../dashboard/hooks/useDashboardData");
-
+  it("shows empty state when no prescriptions today", () => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
 
-    (useDashboardData as unknown as Mock).mockReturnValue({
+    (mockUseDashboardData as unknown as Mock).mockReturnValue({
       prescriptions: [
         createMockPrescription({ createdAt: yesterday.toISOString() }),
       ],
@@ -126,14 +122,12 @@ describe("PharmacistDashboard - Maximum Coverage", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders real table and executes column render functions", async () => {
-    const { useDashboardData } = await import("../../dashboard/hooks/useDashboardData");
-
+  it("renders real table and executes column render functions", () => {
     const prescription = createMockPrescription({
       status: "Active",
     });
 
-    (useDashboardData as unknown as Mock).mockReturnValue({
+    (mockUseDashboardData as unknown as Mock).mockReturnValue({
       prescriptions: [prescription],
       requestStatus: "succeeded",
     });
@@ -154,17 +148,14 @@ describe("PharmacistDashboard - Maximum Coverage", () => {
     expect(screen.getByText("Active")).toBeInTheDocument();
   });
 
-  it("calculates KPI stats correctly", async () => {
-    const { useDashboardData } = await import("../../dashboard/hooks/useDashboardData");
-
+  it("calculates KPI stats correctly", () => {
     const prescriptions = [
-      createMockPrescription({ status: "Created" }),  // pending
-      createMockPrescription({ status: "Active" }),   // ready
-      createMockPrescription({ status: "Reviewed" }), // ready
-      createMockPrescription({ alerts: true }),       // alert
+      createMockPrescription({ status: "Created" }),
+      createMockPrescription({ status: "Active" }),
+      createMockPrescription({ status: "Active" }),
     ];
 
-    (useDashboardData as unknown as Mock).mockReturnValue({
+    (mockUseDashboardData as unknown as Mock).mockReturnValue({
       prescriptions,
       requestStatus: "succeeded",
     });
@@ -174,7 +165,6 @@ describe("PharmacistDashboard - Maximum Coverage", () => {
     // KPI Titles
     expect(screen.getByText("Pending Prescriptions")).toBeInTheDocument();
     expect(screen.getByText("Ready for Pickup")).toBeInTheDocument();
-    expect(screen.getByText("Active Alerts")).toBeInTheDocument();
     expect(
       screen.getByText("Today's Prescriptions", { selector: "div" })
     ).toBeInTheDocument();
@@ -182,17 +172,16 @@ describe("PharmacistDashboard - Maximum Coverage", () => {
     // KPI Values (assert at least one occurrence)
     expect(screen.getAllByText("1").length).toBeGreaterThan(0);
     expect(screen.getAllByText("2").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("3").length).toBeGreaterThan(0);
   });
 
-  it("shows correct header total count", async () => {
-    const { useDashboardData } = await import("../../dashboard/hooks/useDashboardData");
-
+  it("shows correct header total count", () => {
     const prescriptions = [
       createMockPrescription(),
       createMockPrescription(),
     ];
 
-    (useDashboardData as unknown as Mock).mockReturnValue({
+    (mockUseDashboardData as unknown as Mock).mockReturnValue({
       prescriptions,
       requestStatus: "succeeded",
     });

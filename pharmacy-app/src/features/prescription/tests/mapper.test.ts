@@ -13,8 +13,10 @@ describe("prescription mapper", () => {
         id: "doc-1",
         name: "Dr. Smith",
       },
+      prescriberName: "Dr. Smith",
       createdAt: "2026-03-13T00:00:00Z",
       status: "Created",
+      medicineCount: 1,
       medicines: [
         {
           id: "rxline-001",
@@ -26,7 +28,7 @@ describe("prescription mapper", () => {
           durationDays: 5,
           quantityPrescribed: 10,
           refillsAllowed: 0,
-          pharmacistReview: null,
+          pharmacistReview: undefined,
         },
       ],
     };

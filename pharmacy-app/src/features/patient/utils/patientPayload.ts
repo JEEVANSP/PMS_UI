@@ -3,12 +3,24 @@ import type {
   CreatePatientRequest,
   InsuranceDto,
   PatientDetailsDto,
+  PatientGender,
   UpdatePatientRequest,
 } from "@patient/types/patienttype";
 
 const normalizeOptional = (value: string): string | undefined => {
   const normalized = (value ?? "").trim();
   return normalized || undefined;
+};
+
+const normalizeGender = (value: string): PatientGender => {
+  switch ((value ?? "").trim().toLowerCase()) {
+    case "male":
+      return "Male";
+    case "female":
+      return "Female";
+    default:
+      return "Other";
+  }
 };
 
 export const hasPartialInsurance = (values: PatientFormValues): boolean => {
@@ -48,7 +60,7 @@ export const toCreatePatientRequest = (
   values: PatientFormValues,
 ): CreatePatientRequest => ({
   ...buildBasePayload(values),
-  gender: values.gender,
+  gender: normalizeGender(values.gender),
 });
 
 export const toUpdatePatientRequest = (

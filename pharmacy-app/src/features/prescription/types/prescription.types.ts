@@ -1,8 +1,31 @@
-export type {
+import type {
   PrescriptionDetails,
+  PrescriptionLine,
+  PrescriptionSummary,
+} from "@prescription/domain/model";
+
+export type {
   PrescriptionLine,
   PrescriptionLineReviewDraft,
   PrescriptionStatus,
   PrescriptionSummary,
   ValidationSeverity,
 } from "@prescription/domain/model";
+
+export type {
+  CreatePrescriptionRequestDto as CreatePrescriptionRequest,
+  PrescriptionDetailsDto as ApiPrescriptionDetailsDto,
+  PrescriptionLineDto as ApiPrescriptionMedicineDto,
+  PrescriptionLineReviewDto as ApiPharmacistReviewDto,
+  PrescriptionLineValidationDto as ApiMedicineValidationDto,
+  PrescriptionSummaryDto as ApiPrescriptionSummaryDto,
+  PrescriptionValidationSummaryDto as ApiValidationSummaryDto,
+} from "@api/prescription";
+
+export type PrescriptionSummaryDto = PrescriptionSummary;
+export type PrescriptionDetailsDto = PrescriptionDetails;
+export type PrescriptionMedicineDto = PrescriptionLine;
+export type PrescriberDto = PrescriptionDetails["prescriber"];
+export type ValidationSummaryDto = NonNullable<PrescriptionSummary["validationSummary"]>;
+export type MedicineValidationDto = PrescriptionLine["validation"];
+export type PharmacistReviewDto = PrescriptionLine["review"];

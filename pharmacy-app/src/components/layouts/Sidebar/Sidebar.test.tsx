@@ -4,14 +4,11 @@ import { MemoryRouter } from "react-router-dom";
 import Sidebar from "@components/layouts/Sidebar/Sidebar";
 import type { User } from "../../../store/auth/authtype";
 
-// ==============================================
-// GLOBAL STATE for mocking Redux useSelector
-// ==============================================
 let mockCollapsed = false;
 
-// =========================
-// Mock react-redux
-// =========================
+const mockDispatch = vi.fn();
+const mockNavigate = vi.fn();
+
 vi.mock("react-redux", () => {
   type MockState = { ui: { sidebarCollapsed: boolean } };
   return {
@@ -23,12 +20,6 @@ vi.mock("react-redux", () => {
   };
 });
 
-// =========================
-// Mock store actions
-// =========================
-const mockDispatch = vi.fn();
-const mockNavigate = vi.fn();
-
 vi.mock("../../../store/auth/authSlice", () => ({
   serverLogout: () => ({ type: "auth/serverLogout" }),
 }));
@@ -37,9 +28,6 @@ vi.mock("../../../store/ui/uiSlice", () => ({
   toggleSidebar: () => ({ type: "ui/toggleSidebar" }),
 }));
 
-// =========================
-// Mock router
-// =========================
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
@@ -48,16 +36,13 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-// ==============================================
-// RENDER HELPER
-// ==============================================
 function setup(user: User, collapsed = false) {
   mockCollapsed = collapsed;
 
   return render(
     <MemoryRouter>
       <Sidebar user={user} />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -67,9 +52,6 @@ describe("Sidebar Component", () => {
     mockNavigate.mockClear();
   });
 
-  // ============================================================
-  // Role Navigation
-  // ============================================================
   it("renders pharmacist navigation items", () => {
     setup({ role: "pharmacist" } as User);
 
@@ -92,18 +74,13 @@ describe("Sidebar Component", () => {
     setup({ role: "technician" } as User);
 
     expect(screen.getByText("Dashboard")).toBeInTheDocument();
-    expect(screen.getByText("Prescription Status")).toBeInTheDocument();
-    expect(screen.getByText("Alerts")).toBeInTheDocument();
+    expect(screen.getByText("Inventory Management")).toBeInTheDocument();
   });
 
-  // ============================================================
-  // Collapse
-  // ============================================================
   it("dispatches toggleSidebar when clicking collapse button", () => {
     setup({ role: "pharmacist" } as User);
 
-    const toggleBtn = screen.getAllByRole("button")[0]; // first button in header
-    fireEvent.click(toggleBtn);
+    fireEvent.click(screen.getAllByRole("button")[0]);
 
     expect(mockDispatch).toHaveBeenCalledWith({ type: "ui/toggleSidebar" });
   });
@@ -115,31 +92,24 @@ describe("Sidebar Component", () => {
     expect(screen.queryByText("Manual Prescription Entry")).not.toBeInTheDocument();
   });
 
-  // ============================================================
-  // Logout
-  // ============================================================
   it("dispatches logout and navigates to /login", () => {
     setup({ role: "pharmacist" } as User);
 
-    const logoutBtn = screen.getByText("Logout");
-    fireEvent.click(logoutBtn);
+    fireEvent.click(screen.getByText("Logout"));
 
     expect(mockDispatch).toHaveBeenCalledWith({ type: "auth/serverLogout" });
     expect(mockNavigate).toHaveBeenCalledWith("/login");
   });
 
-  // ============================================================
-  // Footer
-  // ============================================================
   it("shows footer when expanded", () => {
     setup({ role: "pharmacist" } as User);
 
-    expect(screen.getByText("© 2025 Pharmacy App")).toBeInTheDocument();
+    expect(screen.getByText("Copyright 2025 Pharmacy App")).toBeInTheDocument();
   });
 
   it("hides footer when collapsed", () => {
     setup({ role: "pharmacist" } as User, true);
 
-    expect(screen.queryByText("© 2025 Pharmacy App")).not.toBeInTheDocument();
+    expect(screen.queryByText("Copyright 2025 Pharmacy App")).not.toBeInTheDocument();
   });
 });
