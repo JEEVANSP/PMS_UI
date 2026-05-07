@@ -1,10 +1,9 @@
 import { useCallback, useMemo } from "react";
-import { useDispatch } from "react-redux";
+import { useAppDispatch } from "@app/store";
 
 import DataTable from "@components/common/Table/Table";
 import type { Column, ServerTableQuery } from "@components/common/Table/Table";
-import { fetchAllPrescriptions } from "@store/prescription/prescriptionSlice";
-import type { AppDispatch } from "store";
+import { fetchAllPrescriptions } from "@app/store/prescription/prescriptionSlice";
 
 import type { PrescriptionSummary } from "@prescription/domain/model";
 
@@ -17,7 +16,7 @@ import {
 } from "@prescription/utils/prescriptionHistoryUtils";
 
 export default function PrescriptionHistory() {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
 
   const {
     prescriptions,

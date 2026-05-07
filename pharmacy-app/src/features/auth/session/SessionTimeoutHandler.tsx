@@ -1,19 +1,18 @@
 import { useEffect, useState, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "@app/store";
 import { useSessionTimeout } from "./useSessionTimeout";
 import WarningModal from "./WarningModal";
-import { refreshAccess, logout, serverLogout } from "@store/auth/authSlice";
-import type { RootState, AppDispatch } from "@store/index";
+import { refreshAccess, logout, serverLogout } from "../../../app/store/auth/authSlice";
 
 // ✅ CONFIG
 const INACTIVITY_X_MS = 60 * 1000; // X seconds before modal
 const WARNING_Y_SEC = 10;          // Y seconds countdown
 
 export default function SessionTimeoutHandler() {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
 
-  const isAuthenticated = useSelector(
-    (s: RootState) => Boolean(s.auth.user)
+  const isAuthenticated = useAppSelector(
+    (s) => Boolean(s.auth.user)
   );
 
   const [showWarning, setShowWarning] = useState(false);

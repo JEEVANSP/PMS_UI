@@ -22,7 +22,7 @@ vi.mock("@dashboard/hooks/useDashboardData", () => ({
 // Mock thunk dispatch
 const mockFetch = vi.fn();
 
-vi.mock("@store/prescription/prescriptionSlice", () => ({
+vi.mock("@app/store/prescription/prescriptionSlice", () => ({
   fetchAllPrescriptions: (payload: unknown) => {
     mockFetch(payload);
     return { type: "mock/fetch" };

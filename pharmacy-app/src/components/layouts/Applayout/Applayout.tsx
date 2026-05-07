@@ -1,12 +1,11 @@
 import { Outlet } from "react-router-dom";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../../store";
+import { useAppSelector } from "@app/store";
 import Sidebar from "../Sidebar/Sidebar";
 import TopNavBar from "../TopNavBar/TopNavBar";
 
 export default function AppLayout() {
-  const user = useSelector((s: RootState) => s.auth.user);
-  const sidebarCollapsed = useSelector((s: RootState) => s.ui.sidebarCollapsed);
+  const user = useAppSelector((s) => s.auth.user);
+  const sidebarCollapsed = useAppSelector((s) => s.ui.sidebarCollapsed);
 
   if (!user) return null;
 

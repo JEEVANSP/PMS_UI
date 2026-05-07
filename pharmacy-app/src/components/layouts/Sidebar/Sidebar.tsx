@@ -1,4 +1,4 @@
-import { serverLogout } from "../../../store/auth/authSlice";
+import { serverLogout } from "@app/store/auth/authSlice";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   HomeIcon,
@@ -12,11 +12,9 @@ import {
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { ChevronLeft, ChevronRight, Pill } from "lucide-react";
-import { useSelector, useDispatch } from "react-redux";
-import type { RootState } from "../../../store";
-import { toggleSidebar } from "../../../store/ui/uiSlice";
-import type { User, UserRole } from "../../../store/auth/authtype";
-import type { AppDispatch } from "../../../store/index";
+import { useAppDispatch, useAppSelector } from "@app/store";
+import { toggleSidebar } from "@app/store/ui/uiSlice";
+import type { User, UserRole } from "@app/store/auth/auth.types";
 
 interface SidebarProps {
   user: User;
@@ -49,10 +47,10 @@ const roleNavItems: Record<
 };
 
 export default function Sidebar({ user }: SidebarProps) {
-  const collapsed = useSelector((s: RootState) => s.ui.sidebarCollapsed);
+  const collapsed = useAppSelector((s) => s.ui.sidebarCollapsed);
   const navigate = useNavigate();
   const navItems = roleNavItems[user.role];
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
 
   return (
     <aside

@@ -25,7 +25,7 @@ vi.mock("../endpoints", () => {
   };
 });
 
-vi.mock("@utils/logger/logger", () => {
+vi.mock("@core/logger/logger", () => {
   return {
     logger: {
       error: vi.fn(),
@@ -39,7 +39,7 @@ vi.mock("@utils/logger/logger", () => {
 // Import the mocked modules' types and instances
 import api from "../axiosInstance";
 import { ENDPOINTS } from "../endpoints";
-import { logger } from "@utils/logger/logger";
+import { logger } from "@core/logger/logger";
 
 describe("getInventoryProducts", () => {
   const apiGet = api.get as unknown as ReturnType<typeof vi.fn>;

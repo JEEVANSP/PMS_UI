@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { jwtDecode } from "jwt-decode";
 import { loginApi, refreshApi, logoutApi } from "@api/auth";
-import { extractApiError } from "@utils/httpError";
-import { extractAuthError } from "./authtype";
-import type { AuthState, User, UserRole } from "./authtype";
+import { extractApiError } from "@core/errors/httpError";
+import { extractAuthError } from "./auth.types";
+import type { AuthState, User, UserRole } from "./auth.types";
 type TokenPayload = {
   sub: string;
   username: string;

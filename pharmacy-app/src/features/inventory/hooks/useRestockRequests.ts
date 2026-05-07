@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useToast } from "@components/common/Toast/useToast";
-import { logger } from "@utils/logger/logger";
+import { logger } from "@core/logger/logger";
 import {
   getPendingInventoryLots,
   requestInventoryLot,

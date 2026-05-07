@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react";
-import type { RootState } from "@store/index";
+import type { RootState } from "@app/store";
 import { vi } from "vitest";
 
 /* ---------------------------------- */

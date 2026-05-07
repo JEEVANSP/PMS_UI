@@ -30,7 +30,7 @@ import {
   type ManagerInventoryLotDto,
   type ManagerProductInventoryDto,
 } from "@api/managerInventory";
-import { logger } from "@utils/logger/logger";
+import { logger } from "@core/logger/logger";
 import AllergySelector from "@patient/components/AllergySelector";
 
 type Tab = "stock" | "add-medicine" | "restock-requests" | "expiry";

@@ -3,7 +3,7 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import { useMedicationStepState } from "../hooks/useMedicationStepState";
 import type { InventorySearchItem, MedicationDraft } from "../types/models";
  
-vi.mock("@utils/hooks/useDebouncedValue", () => ({
+vi.mock("@shared/hooks/useDebouncedValue", () => ({
   useDebouncedValue: (value: unknown) => value,
 }));
  

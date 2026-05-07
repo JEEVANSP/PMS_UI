@@ -1,7 +1,7 @@
 // axiosInstance.ts
 import axios, { AxiosHeaders } from "axios";
-import { store } from "../store";
-import { refreshAccess, logout } from "@store/auth/authSlice";
+import { store } from "@app/store";
+import { refreshAccess, logout } from "@app/store/auth/authSlice";
 import { toast } from "@components/common/Toast/toastService";
 import type { InternalAxiosRequestConfig } from "axios";
 

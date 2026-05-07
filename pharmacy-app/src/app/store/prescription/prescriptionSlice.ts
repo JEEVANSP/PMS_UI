@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { extractApiError } from "@utils/httpError";
+import { extractApiError } from "@core/errors/httpError";
 import {
   cancelPrescription as cancelPrescriptionApi,
   createPrescription as createPrescriptionApi,

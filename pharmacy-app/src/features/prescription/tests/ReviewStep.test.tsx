@@ -11,12 +11,12 @@ import type {
  * Mocks must be declared BEFORE importing the SUT
  */
 
-// Mock @utils/format → formatDate
+// Mock @shared/utils/formatDate → formatDate
 const formatDateSpy = vi.fn((iso: string) => {
   void iso;
   return "Jan 01, 2000";
 });
-vi.mock("@utils/format", () => ({
+vi.mock("@shared/utils/formatDate", () => ({
   formatDate: (iso: string) => formatDateSpy(iso),
 }));
 

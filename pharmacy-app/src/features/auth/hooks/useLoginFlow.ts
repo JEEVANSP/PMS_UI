@@ -1,15 +1,14 @@
 import { useCallback, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useAppDispatch } from "@app/store";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
-import { loginUser } from "@store/auth/authSlice";
-import type { AppDispatch } from "store";
+import { loginUser } from "@app/store/auth/authSlice";
 
 import { useToast } from "@components/common/Toast/useToast";
 import { getDashboardRoute } from "../../../routes/roleRedirect";
-import { extractAuthError } from "@store/auth/authtype";
-import type { UserRole } from "@store/auth/authtype";
+import { extractAuthError } from "@app/store/auth/auth.types";
+import type { UserRole } from "@app/store/auth/auth.types";
 
 type TokenPayload = {
   role: UserRole;
@@ -23,7 +22,7 @@ type LoginFlowDeps = {
 };
 
 export function useLoginFlow(deps?: LoginFlowDeps) {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { success } = useToast();
 

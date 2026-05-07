@@ -1,21 +1,20 @@
 import { useCallback, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "@store/index";
-import { extractApiError } from "@utils/httpError";
+import { useAppDispatch, useAppSelector } from "@app/store";
+import { extractApiError } from "@core/errors/httpError";
 import {
   fetchPrescriptionDetails,
   reviewPrescription as reviewPrescriptionThunk,
-} from "@store/prescription/prescriptionSlice";
+} from "@app/store/prescription/prescriptionSlice";
 import type { PrescriptionLineReviewDraft } from "@prescription/domain/model";
 
 type SubmitResult = { ok: true } | { ok: false; message: string };
 
 export function usePrescriptionReview(rxId: string, patientId: string) {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const [submitting, setSubmitting] = useState(false);
   const [latestEtag, setLatestEtag] = useState<string | null>(null);
-  const latestSnapshot = useSelector(
-    (state: RootState) => state.prescriptions.selected?.prescription ?? null
+  const latestSnapshot = useAppSelector(
+    (state) => state.prescriptions.selected?.prescription ?? null
   );
 
   const refreshLatest = useCallback(async () => {

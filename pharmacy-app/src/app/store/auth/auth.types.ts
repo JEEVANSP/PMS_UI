@@ -1,4 +1,4 @@
-import { extractApiError, getHttpStatus } from "@utils/httpError";
+import { extractApiError, getHttpStatus } from "@core/errors/httpError";
 
 export const UserRoleEnum = {
   manager: "manager",

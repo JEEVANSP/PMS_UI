@@ -1,6 +1,6 @@
 // PharmacistDashboard.tsx
 import { useMemo, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useAppDispatch } from "@app/store";
 import {
   FileText,
   Clock,
@@ -13,10 +13,9 @@ import type { Column } from "@components/common/Table/Table";
 import TrendIndicator from "@components/common/TrendIndicator/TrendIndicator";
 
 import { formatDateTime, statusStyle } from "@prescription/utils/prescriptionHistoryUtils";
-import type { AppDispatch } from "store";
 import type { PrescriptionSummary } from "@prescription/domain/model";
 
-import { fetchAllPrescriptions } from "@store/prescription/prescriptionSlice";
+import { fetchAllPrescriptions } from "@app/store/prescription/prescriptionSlice";
 import { useDashboardData } from "@dashboard/hooks/useDashboardData";
 import  { isSameDay } from "@auth/utils/Pharmacistdashboardutils"; 
 
@@ -25,7 +24,7 @@ import  { isSameDay } from "@auth/utils/Pharmacistdashboardutils";
 /* ---------------------------------- */
 
 export default function PharmacistDashboard() {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
 
   const {
     prescriptions: allPrescriptions,

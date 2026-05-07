@@ -1,6 +1,6 @@
 // src/features/labels/components/LabelQueueList.tsx
 import type { LabelQueuePrescription } from "@labels/types/label.types";
-import { formatDate } from "@utils/format";
+import { formatDate } from "@shared/utils/formatDate";
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("en-US", {

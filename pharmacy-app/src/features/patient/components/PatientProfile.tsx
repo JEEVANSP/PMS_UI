@@ -19,7 +19,7 @@ import { usePatientDirectory } from "@patient/hooks/usePatientDirectory";
 import { usePatientDetails } from "@patient/hooks/usePatientDetails";
 import { usePatientPrescriptions } from "@patient/hooks/usePatientPrescriptions";
 import { useToast } from "@components/common/Toast/useToast";
-import { extractApiError } from "@utils/httpError";
+import { extractApiError } from "@core/errors/httpError";
 import PatientDirectoryPanel from "./PatientDirectoryPanel";
 import PatientDetailsPanel from "./PatientDetailsPanel";
 

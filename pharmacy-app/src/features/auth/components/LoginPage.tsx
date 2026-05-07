@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "@app/store";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import clsx from "clsx";
 
-import type { RootState } from "store";
 import { useLoginFlow } from "@auth/hooks/useLoginFlow";
 import appLogo from "@assets/logo.png";
 
 export default function LoginPage() {
-  const { status } = useSelector((s: RootState) => s.auth);
+  const { status } = useAppSelector((s) => s.auth);
   const { login, errorMessage, clearError } = useLoginFlow();
 
   const [username, setUsername] = useState("");

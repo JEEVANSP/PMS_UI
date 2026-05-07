@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useDebouncedValue } from "@utils/hooks/useDebouncedValue";
+import { useDebouncedValue } from "@shared/hooks/useDebouncedValue";
 import type { PatientSummaryDto } from "@patient/types/patienttype";
 
 export type SearchPatientsFn = (

@@ -1,8 +1,7 @@
-import { useSelector } from "react-redux";
+import { useAppSelector } from "@app/store";
 import { Navigate, Outlet } from "react-router-dom";
-import type { RootState } from "store";
 import { ROUTES } from "../constants/routes";
-import type { UserRole } from "@store/auth/authtype";
+import type { UserRole } from "@app/store/auth/auth.types";
 
 type Props = { allowedRoles?: UserRole[] };
 
@@ -13,7 +12,7 @@ const ROLE_FALLBACKS: Record<UserRole, string> = {
 };
 
 export default function ProtectedRoute({ allowedRoles }: Props) {
-  const user = useSelector((s: RootState) => s.auth.user);
+  const user = useAppSelector((s) => s.auth.user);
 
   if (!user) {
     return <Navigate to={ROUTES.LOGIN} replace />;

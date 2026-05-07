@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import type { RootState } from "../../../store";
+import type { RootState } from "@app/store";
 import { usePrescriptionHistoryData } from "../hooks/usePrescriptionHistoryData";
 import type {
   PrescriptionDetailsDto,
@@ -27,9 +27,10 @@ vi.mock("react-redux", () => {
 });
 
 // Mock thunks as simple action creators (plain objects)
-vi.mock("@store/prescription/prescriptionSlice", () => {
+vi.mock("@app/store/prescription/prescriptionSlice", () => {
   return {
     __esModule: true,
+    default: (state = {}) => state,
     fetchAllPrescriptions: vi.fn((payload: PrescriptionHistoryQueryParams) => ({
       type: "prescriptions/fetchAllPrescriptions",
       payload,
@@ -53,7 +54,7 @@ vi.mock("@api/patient", () => {
 
 /* -------------------- Import mocked modules -------------------- */
 
-import { fetchAllPrescriptions, fetchPrescriptionDetails } from "@store/prescription/prescriptionSlice";
+import { fetchAllPrescriptions, fetchPrescriptionDetails } from "@app/store/prescription/prescriptionSlice";
 import { getPatientById } from "@api/patient";
 
 /* -------------------- Helpers -------------------- */

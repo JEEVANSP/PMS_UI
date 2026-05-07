@@ -1,11 +1,10 @@
-import { useSelector } from "react-redux";
+import { useAppSelector } from "@app/store";
 import { Navigate } from "react-router-dom";
-import type { RootState } from "store";
 import { ROUTES } from "../constants/routes";
 import { type ReactNode } from "react";
 
 export default function PublicRoute({ children }: { children: ReactNode }){
-  const user = useSelector((s: RootState) => s.auth.user);
+  const user = useAppSelector((s) => s.auth.user);
 
   if (user) {
     const ROLE_FALLBACKS = {

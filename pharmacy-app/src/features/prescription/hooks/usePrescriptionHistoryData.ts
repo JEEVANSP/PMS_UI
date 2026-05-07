@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState, AppDispatch } from "store";
+import { useAppDispatch, useAppSelector } from "@app/store";
 import {
   fetchAllPrescriptions,
   fetchPrescriptionDetails,
-} from "@store/prescription/prescriptionSlice";
+} from "@app/store/prescription/prescriptionSlice";
 import type {
   PrescriptionDetails,
   PrescriptionSummary,
@@ -15,8 +14,8 @@ import { getPatientById } from "@api/patient";
 type Options = { pageSize?: number; skipInitialFetch?: boolean };
 
 export function usePrescriptionHistoryData(options?: Options) {
-  const dispatch = useDispatch<AppDispatch>();
-  const prescriptionState = useSelector((s: RootState) => s.prescriptions);
+  const dispatch = useAppDispatch();
+  const prescriptionState = useAppSelector((s) => s.prescriptions);
   const prescriptions = useMemo(
     () => prescriptionState.items ?? [],
     [prescriptionState.items]

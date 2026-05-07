@@ -1,6 +1,6 @@
 import api from "./axiosInstance";
 import { ENDPOINTS } from "./endpoints";
-import { extractApiError } from "@utils/httpError";
+import { extractApiError } from "@core/errors/httpError";
 import type {
   PrescriptionDetailsDto,
   PrescriptionListResponseDto,

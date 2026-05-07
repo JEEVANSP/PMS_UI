@@ -10,7 +10,7 @@ import type {
    MOCKS
 ===================================================== */
 
-vi.mock("@utils/format", () => ({
+vi.mock("@shared/utils/formatDate", () => ({
   formatDate: vi.fn(() => "01-Jan-2024"),
 }));
 

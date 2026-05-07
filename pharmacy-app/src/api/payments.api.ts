@@ -2,7 +2,7 @@
 import api from "./axiosInstance";
 import { ENDPOINTS } from "./endpoints";
 import { extractEtag } from "./prescription";
-import { logger } from "@utils/logger/logger";
+import { logger } from "@core/logger/logger";
 
 /* ======================================================
    TYPES (mirror DTOs serialized by ASP.NET Core: camelCase)

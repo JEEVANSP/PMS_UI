@@ -1,6 +1,6 @@
 // src/features/labels/hooks/useLabelPrescriptionDetails.ts
 import { useCallback, useRef, useState } from "react";
-import { extractApiError } from "@utils/httpError";
+import { extractApiError } from "@core/errors/httpError";
 import type { LabelPrescriptionDetails } from "@labels/types/label.types";
 import { getDispenseLabels } from "@api/label";
 

@@ -49,13 +49,14 @@ vi.mock("../utils/prescriptionHistoryUtils", () => ({
 }));
 
 // -----------------------
-// Mock: Redux action creator (exact string: "@store/prescription/prescriptionSlice")
+// Mock: Redux action creator (exact string: "@app/store/prescription/prescriptionSlice")
 // -----------------------
 const fetchAllPrescriptionsMock = vi.fn((payload: PrescriptionHistoryQueryParams) => ({
   type: "prescriptions/fetchAll",
   payload,
 }));
-vi.mock("@store/prescription/prescriptionSlice", () => ({
+vi.mock("@app/store/prescription/prescriptionSlice", () => ({
+  default: (state = {}) => state,
   fetchAllPrescriptions: (payload: PrescriptionHistoryQueryParams) =>
     fetchAllPrescriptionsMock(payload),
 }));

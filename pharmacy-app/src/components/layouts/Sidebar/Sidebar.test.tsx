@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Sidebar from "@components/layouts/Sidebar/Sidebar";
-import type { User } from "../../../store/auth/authtype";
+import type { User } from "@app/store/auth/auth.types";
 
 let mockCollapsed = false;
 
@@ -20,11 +20,13 @@ vi.mock("react-redux", () => {
   };
 });
 
-vi.mock("../../../store/auth/authSlice", () => ({
+vi.mock("@app/store/auth/authSlice", () => ({
+  default: (state = {}) => state,
   serverLogout: () => ({ type: "auth/serverLogout" }),
 }));
 
-vi.mock("../../../store/ui/uiSlice", () => ({
+vi.mock("@app/store/ui/uiSlice", () => ({
+  default: (state = {}) => state,
   toggleSidebar: () => ({ type: "ui/toggleSidebar" }),
 }));
 

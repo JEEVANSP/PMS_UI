@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useDebouncedValue } from "@utils/hooks/useDebouncedValue";
+import { useDebouncedValue } from "@shared/hooks/useDebouncedValue";
 
 export type AllergySearchFn = (
   query: string,

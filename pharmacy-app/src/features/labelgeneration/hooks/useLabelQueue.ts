@@ -1,6 +1,6 @@
 // src/features/labels/hooks/useLabelQueue.ts
 import { useCallback, useEffect, useRef, useState } from "react";
-import { extractApiError } from "@utils/httpError";
+import { extractApiError } from "@core/errors/httpError";
 import type { LabelQueuePrescription } from "@labels/types/label.types";
 import { getLabelQueue } from "@api/label";
 

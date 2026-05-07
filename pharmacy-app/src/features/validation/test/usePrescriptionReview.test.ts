@@ -112,7 +112,7 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { usePrescriptionReview } from "../hooks/usePrescriptionReview";
-import type { RootState } from "@store/index";
+import type { RootState } from "@app/store";
 import type { PrescriptionLineReviewDraft } from "@prescription/domain/model";
 import type { UnknownAction } from "@reduxjs/toolkit";
 
@@ -139,7 +139,7 @@ vi.mock("react-redux", () => ({
 }));
 
 // ---------------- MOCK SLICE ----------------
-vi.mock("@store/prescription/prescriptionSlice", () => {
+vi.mock("@app/store/prescription/prescriptionSlice", () => {
   const mockThunk = vi.fn();
 
   // attach matcher like RTK does
@@ -150,6 +150,7 @@ vi.mock("@store/prescription/prescriptionSlice", () => {
   });
 
   return {
+    default: (state = {}) => state,
     fetchPrescriptionDetails: vi.fn((payload) => ({
       type: "prescriptions/details",
       payload,
@@ -159,14 +160,14 @@ vi.mock("@store/prescription/prescriptionSlice", () => {
 });
 
 // ---------------- MOCK ERROR UTILS ----------------
-vi.mock("@utils/httpError", () => ({
+vi.mock("@core/errors/httpError", () => ({
   extractApiError: vi.fn(() => "fallback error"),
 }));
 
 import {
   reviewPrescription,
   fetchPrescriptionDetails,
-} from "@store/prescription/prescriptionSlice";
+} from "@app/store/prescription/prescriptionSlice";
 
 describe("usePrescriptionReview", () => {
   beforeEach(() => {

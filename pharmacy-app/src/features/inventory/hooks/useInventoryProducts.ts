@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ServerTableQuery } from "@components/common/Table/Table";
 import { useToast } from "@components/common/Toast/useToast";
 import { getInventoryProducts, type InventoryProductDto } from "@api/inventory";
-import { logger } from "@utils/logger/logger";
+import { logger } from "@core/logger/logger";
 import type { InventoryItem } from "@inventory/types/inventory.types";
 import {
   buildInventoryProductsQuery,

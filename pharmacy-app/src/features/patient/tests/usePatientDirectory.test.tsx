@@ -13,7 +13,7 @@ import { usePatientDirectory, type SearchPatientsFn } from "../hooks/usePatientD
 import type { PatientSummaryDto } from "@patient/types/patienttype";
 
 // Mock debounce hook to avoid timing complexity
-vi.mock("@utils/hooks/useDebouncedValue", () => ({
+vi.mock("@shared/hooks/useDebouncedValue", () => ({
   useDebouncedValue: (value: string) => value,
 }));
 

@@ -1,10 +1,11 @@
 // src/features/auth/tests/useLoginFlow.test.tsx
 import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { NETWORK_ERROR_MESSAGE } from "@utils/httpError";
+import { NETWORK_ERROR_MESSAGE } from "@core/errors/httpError";
 
 // 🚧 Guard mocks: prevent real store/slice/persist from executing during unit tests
-vi.mock("@store/auth/authSlice", () => ({
+vi.mock("@app/store/auth/authSlice", () => ({
+  default: (state = {}) => state,
   loginUser: vi.fn(
     (creds: { username: string; password: string }) => ({
       type: "auth/loginUser",

@@ -1,8 +1,8 @@
 // src/prescription/hooks/usePatientSearch.ts
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useDebouncedValue } from "@utils/hooks/useDebouncedValue";
+import { useDebouncedValue } from "@shared/hooks/useDebouncedValue";
 import { searchPatients as defaultSearchPatients } from "@api/patient";
-import { extractApiError } from "@utils/httpError";
+import { extractApiError } from "@core/errors/httpError";
 import type { PatientSummary } from "@prescription/types/models";
 
 type Options = {

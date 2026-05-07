@@ -43,7 +43,7 @@ vi.mock("@utils/hooks/usePendingPrescriptions", () => ({
   usePendingPrescriptions: () => mockUsePendingPrescriptions(),
 }));
 
-vi.mock("@utils/format", () => ({
+vi.mock("@shared/utils/formatDate", () => ({
   formatDate: (v: string) => `formatted-${v}`,
 }));
 

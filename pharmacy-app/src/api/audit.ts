@@ -1,6 +1,6 @@
 import api from "./axiosInstance";
 import { ENDPOINTS } from "./endpoints";
-import { logger } from "@utils/logger/logger";
+import { logger } from "@core/logger/logger";
 
 /* ======================================================
    DTO TYPES (mirror ASP.NET Core camelCase serialization)

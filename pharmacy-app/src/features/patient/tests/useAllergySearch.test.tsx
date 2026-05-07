@@ -61,7 +61,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, waitFor, cleanup } from "@testing-library/react";
 import { useAllergySearch, type AllergySearchFn } from "../hooks/useAllergySearch";
 
-vi.mock("@utils/hooks/useDebouncedValue", () => ({
+vi.mock("@shared/hooks/useDebouncedValue", () => ({
   useDebouncedValue: (value: string) => value,
 }));
 

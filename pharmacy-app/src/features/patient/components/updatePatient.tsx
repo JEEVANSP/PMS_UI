@@ -2,7 +2,7 @@ import type {
   PatientDetailsDto,
 } from "@patient/types/patienttype";
 import { updatePatient, getPatientDetails } from "@api/patient";
-import { extractApiError } from "@utils/httpError";
+import { extractApiError } from "@core/errors/httpError";
 import { useToast } from "@components/common/Toast/useToast";
 import PatientFormModal from "./PatientFormModal";
 import type { PatientFormValues } from "@patient/hooks/usePatientForm";

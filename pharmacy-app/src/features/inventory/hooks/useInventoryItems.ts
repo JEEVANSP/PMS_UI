@@ -5,7 +5,7 @@
 //
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useToast } from "@components/common/Toast/useToast";
-import { logger } from "@utils/logger/logger";
+import { logger } from "@core/logger/logger";
 import {
   getAllInventoryLots,
   type InventoryLotDto,
