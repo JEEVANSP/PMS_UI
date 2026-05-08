@@ -1,15 +1,10 @@
 import { useAppSelector } from "@app/store";
 import { Navigate, Outlet } from "react-router-dom";
-import { ROUTES } from "../constants/routes";
-import type { UserRole } from "@app/store/auth/auth.types";
+import { ROUTES } from "@constants/routes";
+import { ROLE_FALLBACKS } from "@shared/constants/roleRoutes";
+import type { UserRole } from "@auth/types";
 
 type Props = { allowedRoles?: UserRole[] };
-
-const ROLE_FALLBACKS: Record<UserRole, string> = {
-  manager: ROUTES.MANAGER.DASHBOARD,
-  pharmacist: ROUTES.PHARMACIST.DASHBOARD,
-  technician: ROUTES.TECHNICIAN.DASHBOARD,
-};
 
 export default function ProtectedRoute({ allowedRoles }: Props) {
   const user = useAppSelector((s) => s.auth.user);

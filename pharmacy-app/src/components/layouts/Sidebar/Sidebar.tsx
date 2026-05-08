@@ -1,4 +1,4 @@
-import { serverLogout } from "@app/store/auth/authSlice";
+import { serverLogout } from "@auth/slices";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   HomeIcon,
@@ -14,7 +14,7 @@ import {
 import { ChevronLeft, ChevronRight, Pill } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@app/store";
 import { toggleSidebar } from "@app/store/ui/uiSlice";
-import type { User, UserRole } from "@app/store/auth/auth.types";
+import type { User, UserRole } from "@auth/types";
 
 interface SidebarProps {
   user: User;

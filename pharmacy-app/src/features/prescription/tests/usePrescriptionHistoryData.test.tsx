@@ -7,7 +7,7 @@ import type {
   PrescriptionSummaryDto,
 } from "@prescription/types/prescription.types";
 import type { PatientDetails } from "@prescription/types/models";
-import type { PrescriptionHistoryQueryParams } from "@api/prescription";
+import type { PrescriptionHistoryQueryParams } from "@prescription/api";
 
 /* -------------------- Mocks -------------------- */
 
@@ -27,7 +27,7 @@ vi.mock("react-redux", () => {
 });
 
 // Mock thunks as simple action creators (plain objects)
-vi.mock("@app/store/prescription/prescriptionSlice", () => {
+vi.mock("@prescription/slices", () => {
   return {
     __esModule: true,
     default: (state = {}) => state,
@@ -54,7 +54,7 @@ vi.mock("@api/patient", () => {
 
 /* -------------------- Import mocked modules -------------------- */
 
-import { fetchAllPrescriptions, fetchPrescriptionDetails } from "@app/store/prescription/prescriptionSlice";
+import { fetchAllPrescriptions, fetchPrescriptionDetails } from "@prescription/slices";
 import { getPatientById } from "@api/patient";
 
 /* -------------------- Helpers -------------------- */

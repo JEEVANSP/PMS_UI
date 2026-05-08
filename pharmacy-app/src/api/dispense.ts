@@ -1,9 +1,9 @@
 // src/api/dispense.ts
 // All dispense API calls — matches DispenseController.cs exactly.
 
-import api from "./axiosInstance";
-import { ENDPOINTS } from "./endpoints";
-import { extractEtag } from "./prescription";
+import api from "@core/api/apiClient";
+import { ENDPOINTS } from "@core/api/endpoints";
+import { extractEtag } from "@prescription/api";
 import { logger } from "@core/logger/logger";
 
 // ── DTOs ──────────────────────────────────────────────────────────────────────

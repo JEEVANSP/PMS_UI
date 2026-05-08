@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useToast } from "@components/common/Toast/useToast";
 
-import { createPrescription } from "@api/prescription";
+import { createPrescription } from "@prescription/api";
 import { getPatientById } from "@api/patient";
 
 import type { PatientSummary } from "@prescription/types/models";

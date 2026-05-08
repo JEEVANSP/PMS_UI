@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../axiosInstance", () => ({
+vi.mock("@core/api/apiClient", () => ({
   default: {
     get: vi.fn(),
     post: vi.fn(),
@@ -8,7 +8,7 @@ vi.mock("../axiosInstance", () => ({
   },
 }));
 
-import api from "../axiosInstance";
+import api from "@core/api/apiClient";
 import {
   cancelPrescription,
   createPrescription,
@@ -18,7 +18,7 @@ import {
   getPrescriptionsByPatient,
   getValidatedPrescriptions,
   reviewPrescription,
-} from "../prescription";
+} from "@prescription/api";
 
 describe("prescription API", () => {
   const apiGet = api.get as unknown as ReturnType<typeof vi.fn>;

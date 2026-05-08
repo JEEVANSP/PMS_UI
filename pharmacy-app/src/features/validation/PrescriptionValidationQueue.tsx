@@ -4,7 +4,7 @@ import { ClipboardList, ChevronRight } from "lucide-react";
 import clsx from "clsx";
 
 import { ROUTES } from "../../constants/routes";
-import { usePendingPrescriptions } from "@utils/hooks/usePendingPrescriptions";
+import { usePendingPrescriptions } from "@prescription/hooks/usePendingPrescriptions";
 import { formatDate } from "@shared/utils/formatDate";
 import type { PrescriptionSummary } from "@prescription/domain/model";
 

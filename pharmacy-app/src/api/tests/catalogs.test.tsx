@@ -7,11 +7,11 @@
 // should respect AbortSignal passed via opts
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as catalog from "../catalogs";
-import api from "../axiosInstance";
-import { ENDPOINTS } from "../endpoints";
+import api from "@core/api/apiClient";
+import { ENDPOINTS } from "@core/api/endpoints";
 
 // Mock the api module
-vi.mock("../axiosInstance");
+vi.mock("@core/api/apiClient");
 
 const mockedApi = vi.mocked(api, true);
 

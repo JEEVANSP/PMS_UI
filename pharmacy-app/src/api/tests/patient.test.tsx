@@ -10,7 +10,7 @@ import {
 } from "../patient";
 import type { CreatePatientRequest } from "@patient/types/patienttype";
 
-vi.mock("../axiosInstance", () => ({
+vi.mock("@core/api/apiClient", () => ({
   default: {
     get: vi.fn(),
     post: vi.fn(),
@@ -18,7 +18,7 @@ vi.mock("../axiosInstance", () => ({
   },
 }));
 
-vi.mock("../endpoints", () => ({
+vi.mock("@core/api/endpoints", () => ({
   ENDPOINTS: {
     patientSearch: "/api/patients/search",
     patients: "/api/patients",
@@ -26,8 +26,8 @@ vi.mock("../endpoints", () => ({
   },
 }));
 
-import api from "../axiosInstance";
-import { ENDPOINTS } from "../endpoints";
+import api from "@core/api/apiClient";
+import { ENDPOINTS } from "@core/api/endpoints";
 
 describe("patient API", () => {
   const apiGet = vi.mocked(api.get);

@@ -3,12 +3,12 @@ import { useAppDispatch } from "@app/store";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
-import { loginUser } from "@app/store/auth/authSlice";
+import { loginUser } from "@auth/slices";
 
 import { useToast } from "@components/common/Toast/useToast";
-import { getDashboardRoute } from "../../../routes/roleRedirect";
-import { extractAuthError } from "@app/store/auth/auth.types";
-import type { UserRole } from "@app/store/auth/auth.types";
+import { getDashboardRoute } from "@auth/utils/getDashboardRoute";
+import { extractAuthError } from "@auth/types";
+import type { UserRole } from "@auth/types";
 
 type TokenPayload = {
   role: UserRole;

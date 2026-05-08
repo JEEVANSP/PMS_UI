@@ -40,7 +40,7 @@ vi.mock("@api/patient", () => {
   };
 });
 
-vi.mock("@api/prescription", () => {
+vi.mock("@prescription/api", () => {
   return {
     __esModule: true,
     createPrescription: vi.fn(),
@@ -66,7 +66,7 @@ vi.mock("@prescription/utils/validation", () => {
 
 import * as ToastModule from "@components/common/Toast/useToast";
 import { getPatientById } from "@api/patient";
-import { createPrescription } from "@api/prescription";
+import { createPrescription } from "@prescription/api";
 import {
   validatePatientStep,
   validateDoctorStep,

@@ -6,11 +6,11 @@ import {
   getAllPrescriptions,
   getPrescriptionById,
   reviewPrescription as reviewPrescriptionApi,
-} from "@api/prescription.ts";
+} from "@prescription/api";
 import type {
   CreatePrescriptionRequestDto,
-} from "@api/prescription.ts";
-import type { PrescriptionHistoryQueryParams } from "@api/prescription.ts";
+  PrescriptionHistoryQueryParams,
+} from "@prescription/api";
 import {
   mapDetailsDto,
   mapReviewToDto,

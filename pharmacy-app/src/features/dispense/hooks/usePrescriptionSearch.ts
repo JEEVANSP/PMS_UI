@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
-import { getAllPrescriptions } from "@api/prescription";
-import type { PrescriptionSummaryDto } from "@api/prescription";
+import { getAllPrescriptions } from "@prescription/api";
+import type { PrescriptionSummaryDto } from "@prescription/api";
 
 interface SearchFilters {
   prescriptionId?: string;

@@ -8,13 +8,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ✅ Mock BEFORE importing the module under test
-vi.mock("../axiosInstance", () => ({
+vi.mock("@core/api/apiClient", () => ({
   default: {
     post: vi.fn(),
   },
 }));
 
-vi.mock("../endpoints", () => ({
+vi.mock("@core/api/endpoints", () => ({
   ENDPOINTS: {
     login: "/login",
     refresh: "/refresh",
@@ -22,9 +22,9 @@ vi.mock("../endpoints", () => ({
   },
 }));
 
-import { loginApi, refreshApi, logoutApi } from "../auth";
-import api from "../axiosInstance";
-import { ENDPOINTS } from "../endpoints";
+import { loginApi, refreshApi, logoutApi } from "@auth/api";
+import api from "@core/api/apiClient";
+import { ENDPOINTS } from "@core/api/endpoints";
 
 describe("auth API", () => {
   const mockedPost = vi.mocked(api.post);

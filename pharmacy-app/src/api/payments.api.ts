@@ -1,7 +1,7 @@
 // payments.api.ts — unified payments API (merged from payments.ts)
-import api from "./axiosInstance";
-import { ENDPOINTS } from "./endpoints";
-import { extractEtag } from "./prescription";
+import api from "@core/api/apiClient";
+import { ENDPOINTS } from "@core/api/endpoints";
+import { extractEtag } from "@prescription/api";
 import { logger } from "@core/logger/logger";
 
 /* ======================================================
@@ -322,7 +322,7 @@ export async function getPaymentTransactions(
         dateFrom: query.dateFrom ?? "",
         dateTo: query.dateTo ?? "",
       },
-      // Let axiosInstance carry credentials/csrf headers as configured
+      // Let apiClient carry credentials/csrf headers as configured
     });
 
     const data = Array.isArray(res.data?.data) ? res.data.data : [];

@@ -1,6 +1,6 @@
 
-import api from "./axiosInstance";
-import { ENDPOINTS } from "./endpoints";
+import api from "@core/api/apiClient";
+import { ENDPOINTS } from "@core/api/endpoints";
 
 /**
  * Search allergy catalog by text. Returns string[] of codes/labels.

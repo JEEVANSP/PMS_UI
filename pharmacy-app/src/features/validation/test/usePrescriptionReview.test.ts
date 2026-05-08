@@ -5,9 +5,9 @@
 //   activatePrescription,
 //   reviewPrescriptionLine,
 //   validatePrescription,
-// } from "@api/prescription";
+// } from "@prescription/api";
 
-// vi.mock("@api/prescription", () => ({
+// vi.mock("@prescription/api", () => ({
 //   reviewPrescriptionLine: vi.fn(),
 //   validatePrescription: vi.fn(),
 //   activatePrescription: vi.fn(),
@@ -139,7 +139,7 @@ vi.mock("react-redux", () => ({
 }));
 
 // ---------------- MOCK SLICE ----------------
-vi.mock("@app/store/prescription/prescriptionSlice", () => {
+vi.mock("@prescription/slices", () => {
   const mockThunk = vi.fn();
 
   // attach matcher like RTK does
@@ -167,7 +167,7 @@ vi.mock("@core/errors/httpError", () => ({
 import {
   reviewPrescription,
   fetchPrescriptionDetails,
-} from "@app/store/prescription/prescriptionSlice";
+} from "@prescription/slices";
 
 describe("usePrescriptionReview", () => {
   beforeEach(() => {

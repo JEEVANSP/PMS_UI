@@ -1,5 +1,5 @@
 import { Bell } from "lucide-react";
-import type { UserRole } from "@app/store/auth/auth.types";
+import type { UserRole } from "@auth/types";
 import appLogo from "@assets/logo.png";
 
 type TopNavBarProps = {

@@ -1,7 +1,8 @@
 // type LogLevel = "info" | "warn" | "error" | "debug";
+import { ENV } from "@core/config/env";
 
 class Logger {
-  private isProd = import.meta.env.MODE === "production";
+  private isProd = ENV.MODE === "production";
 
   info(message: string, data?: unknown) {
     console.info(message, data ?? "");

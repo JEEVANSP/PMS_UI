@@ -1,10 +1,10 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { usePrescriptionDetails } from "../hooks/usePrescriptionDetails";
-import { getPrescriptionById } from "@api/prescription";
-import type { PrescriptionDetailsDto } from "@api/prescription";
+import { getPrescriptionById } from "@prescription/api";
+import type { PrescriptionDetailsDto } from "@prescription/api";
 
-vi.mock("@api/prescription", () => ({
+vi.mock("@prescription/api", () => ({
   getPrescriptionById: vi.fn(),
 }));
 

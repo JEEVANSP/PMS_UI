@@ -4,8 +4,9 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { NETWORK_ERROR_MESSAGE } from "@core/errors/httpError";
 
 // 🚧 Guard mocks: prevent real store/slice/persist from executing during unit tests
-vi.mock("@app/store/auth/authSlice", () => ({
+vi.mock("@auth/slices", () => ({
   default: (state = {}) => state,
+  authReducer: (state = {}) => state,
   loginUser: vi.fn(
     (creds: { username: string; password: string }) => ({
       type: "auth/loginUser",

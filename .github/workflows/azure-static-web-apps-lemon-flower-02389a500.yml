@@ -1,7 +1,6 @@
 name: Azure Static Web Apps CI/CD
 
 on:
-  push:
   pull_request:
     types: [opened, synchronize, reopened, closed]
 

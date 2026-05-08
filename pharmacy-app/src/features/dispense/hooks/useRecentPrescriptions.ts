@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getAllPrescriptions } from "@api/prescription";
-import type { PrescriptionSummaryDto } from "@api/prescription";
+import { getAllPrescriptions } from "@prescription/api";
+import type { PrescriptionSummaryDto } from "@prescription/api";
 
 export function useRecentPrescriptions() {
   const [recent, setRecent] = useState<PrescriptionSummaryDto[]>([]);

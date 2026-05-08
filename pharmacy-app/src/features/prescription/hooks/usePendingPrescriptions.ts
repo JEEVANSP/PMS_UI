@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getPendingPrescriptions } from "@api/prescription";
+import { getPendingPrescriptions } from "@prescription/api";
 import { mapSummaryDto } from "@prescription/domain/mapper";
 import type { PrescriptionSummary } from "@prescription/domain/model";
 

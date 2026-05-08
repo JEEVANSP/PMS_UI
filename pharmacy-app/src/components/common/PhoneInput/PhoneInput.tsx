@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "react-phone-number-input/style.css";
-import "../../../styles/phone-input.css";
+import "./phone-input.css";
 import PhoneInput, { type Country, type Value } from "react-phone-number-input";
 import clsx from "clsx";
 

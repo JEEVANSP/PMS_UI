@@ -20,7 +20,7 @@ export type {
   PrescriptionLineValidationDto as ApiMedicineValidationDto,
   PrescriptionSummaryDto as ApiPrescriptionSummaryDto,
   PrescriptionValidationSummaryDto as ApiValidationSummaryDto,
-} from "@api/prescription";
+} from "@prescription/api";
 
 export type PrescriptionSummaryDto = PrescriptionSummary;
 export type PrescriptionDetailsDto = PrescriptionDetails;

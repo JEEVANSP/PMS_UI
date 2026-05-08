@@ -1,11 +1,11 @@
-import api from "./axiosInstance";
-import { ENDPOINTS } from "./endpoints";
+import api from "@core/api/apiClient";
+import { ENDPOINTS } from "@core/api/endpoints";
 import { extractApiError } from "@core/errors/httpError";
 import type {
   PrescriptionDetailsDto,
   PrescriptionListResponseDto,
   PrescriptionSummaryDto,
-} from "./prescription.dto";
+} from "@prescription/api";
 import type {
   CreatePatientRequest,
   PatientDetailsDto,

@@ -12,7 +12,7 @@ import Input  from "@components/common/Input/Input";
 import Badge  from "@components/common/Badge/Badge";
 import { useToast } from "@components/common/Toast/useToast";
 import { cancelDispense, executeDispenseWithEtag, markDispenseReadyWithEtag } from "@api/dispense";
-import type { PrescriptionSummaryDto } from "@api/prescription";
+import type { PrescriptionSummaryDto } from "@prescription/api";
 
 import { useDispense }        from "../hooks/useDispense";
 import { useBilling }         from "../hooks/useBilling";

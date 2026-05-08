@@ -1,13 +1,13 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { configureStore, type AnyAction } from "@reduxjs/toolkit";
 import { NETWORK_ERROR_MESSAGE } from "@core/errors/httpError";
-import type { UserRole } from "../auth/auth.types";
+import type { UserRole } from "@auth/types";
 
 // ---- Mocks (declare first, then import SUT) ----
 const loginApiMock = vi.fn();
 const refreshApiMock = vi.fn();
 const logoutApiMock = vi.fn();
-vi.mock("@api/auth", () => ({
+vi.mock("@auth/api", () => ({
   loginApi: (...args: unknown[]) => loginApiMock(...args),
   refreshApi: (...args: unknown[]) => refreshApiMock(...args),
   logoutApi: (...args: unknown[]) => logoutApiMock(...args),
@@ -24,7 +24,7 @@ import authReducer, {
   refreshAccess,
   serverLogout,
   logout,
-} from "../auth/authSlice";
+} from "@auth/slices";
 
 // ---- Helpers ----
 function makeStore() {

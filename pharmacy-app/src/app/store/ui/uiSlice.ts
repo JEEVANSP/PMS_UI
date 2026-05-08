@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 interface UIState {
   sidebarCollapsed: boolean;
@@ -15,7 +15,7 @@ const uiSlice = createSlice({
     toggleSidebar(state) {
       state.sidebarCollapsed = !state.sidebarCollapsed;
     },
-    setSidebar(state, action) {
+    setSidebar(state, action: PayloadAction<boolean>) {
       state.sidebarCollapsed = action.payload;
     },
   },

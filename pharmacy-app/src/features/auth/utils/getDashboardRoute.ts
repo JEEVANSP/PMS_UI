@@ -1,7 +1,6 @@
-import { ROUTES } from "../constants/routes";
-import type { UserRole } from "@app/store/auth/auth.types";
+import { ROUTES } from "@constants/routes";
+import type { UserRole } from "@auth/types";
 
-/** Mapping from user role enum -> dashboard route */
 const ROLE_DASHBOARD_ROUTE: Record<UserRole, string> = {
   manager: ROUTES.MANAGER.DASHBOARD,
   pharmacist: ROUTES.PHARMACIST.DASHBOARD,

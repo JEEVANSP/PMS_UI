@@ -5,12 +5,12 @@
 // logoutApi should call logout endpoint successfully 
 // logoutApi should throw on failure 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import axiosInstance from "../axiosInstance";
-import { loginApi, refreshApi, logoutApi } from "../auth";
+import apiClient from "@core/api/apiClient";
+import { loginApi, refreshApi, logoutApi } from "@auth/api";
 
-// Mock axiosInstance
-vi.mock("../axiosInstance");
-const mockedAxios = vi.mocked(axiosInstance, true);
+// Mock apiClient
+vi.mock("@core/api/apiClient");
+const mockedAxios = vi.mocked(apiClient, true);
 
 describe("auth API", () => {
   beforeEach(() => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { mapDetailsDto, mapReviewToDto } from "@prescription/domain/mapper";
-import type { PrescriptionDetailsDto } from "@api/prescription.dto";
+import type { PrescriptionDetailsDto } from "@prescription/api";
 
 describe("prescription mapper", () => {
   it("uses backend medicine id as the lineId when prescriptionLineId is absent", () => {

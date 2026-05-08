@@ -1,9 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { jwtDecode } from "jwt-decode";
-import { loginApi, refreshApi, logoutApi } from "@api/auth";
+import { loginApi, refreshApi, logoutApi } from "@auth/api";
 import { extractApiError } from "@core/errors/httpError";
-import { extractAuthError } from "./auth.types";
-import type { AuthState, User, UserRole } from "./auth.types";
+import { extractAuthError } from "@auth/types";
+import type { AuthState, User, UserRole } from "@auth/types";
+import type { LoginCredentialsDto } from "@auth/api";
 type TokenPayload = {
   sub: string;
   username: string;
@@ -36,7 +37,7 @@ const getErrorMessage = (error: unknown): string => {
 // Thunks
 export const loginUser = createAsyncThunk(
   "auth/login",
-  async (credentials: { username: string; password: string }, { rejectWithValue }) => {
+  async (credentials: LoginCredentialsDto, { rejectWithValue }) => {
     try {
       const res = await loginApi(credentials);
       return res;

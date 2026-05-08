@@ -7,7 +7,7 @@ import {
 } from "../inventory";
 
 // --- Mocks ---
-vi.mock("../axiosInstance", () => {
+vi.mock("@core/api/apiClient", () => {
   return {
     default: {
       get: vi.fn(),
@@ -15,7 +15,7 @@ vi.mock("../axiosInstance", () => {
   };
 });
 
-vi.mock("../endpoints", () => {
+vi.mock("@core/api/endpoints", () => {
   return {
     ENDPOINTS: {
       products: "/api/products/search",
@@ -37,8 +37,8 @@ vi.mock("@core/logger/logger", () => {
 });
 
 // Import the mocked modules' types and instances
-import api from "../axiosInstance";
-import { ENDPOINTS } from "../endpoints";
+import api from "@core/api/apiClient";
+import { ENDPOINTS } from "@core/api/endpoints";
 import { logger } from "@core/logger/logger";
 
 describe("getInventoryProducts", () => {

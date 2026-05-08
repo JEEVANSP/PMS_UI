@@ -7,7 +7,7 @@ import {
 } from "../label";
 
 // ---- Mocks ----
-vi.mock("../axiosInstance", () => {
+vi.mock("@core/api/apiClient", () => {
   return {
     default: {
       get: vi.fn(),
@@ -15,7 +15,7 @@ vi.mock("../axiosInstance", () => {
   };
 });
 
-vi.mock("../endpoints", () => {
+vi.mock("@core/api/endpoints", () => {
   return {
     ENDPOINTS: {
       dispenses: "/api/dispenses",
@@ -25,8 +25,8 @@ vi.mock("../endpoints", () => {
 });
 
 // Import mocked instances/types after vi.mock
-import api from "../axiosInstance";
-import { ENDPOINTS } from "../endpoints";
+import api from "@core/api/apiClient";
+import { ENDPOINTS } from "@core/api/endpoints";
 
 // Types used in return values (optional for clarity in test data)
 type LabelQueuePrescription = {

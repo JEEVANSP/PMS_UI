@@ -1,4 +1,4 @@
-import api from "./axiosInstance";
+import api from "@core/api/apiClient";
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;

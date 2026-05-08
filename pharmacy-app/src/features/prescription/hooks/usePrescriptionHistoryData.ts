@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from "@app/store";
 import {
   fetchAllPrescriptions,
   fetchPrescriptionDetails,
-} from "@app/store/prescription/prescriptionSlice";
+} from "@prescription/slices";
 import type {
   PrescriptionDetails,
   PrescriptionSummary,

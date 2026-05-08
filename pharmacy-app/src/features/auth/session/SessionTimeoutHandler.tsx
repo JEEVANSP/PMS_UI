@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@app/store";
 import { useSessionTimeout } from "./useSessionTimeout";
 import WarningModal from "./WarningModal";
-import { refreshAccess, logout, serverLogout } from "../../../app/store/auth/authSlice";
+import { refreshAccess, logout, serverLogout } from "@auth/slices";
 
 // ✅ CONFIG
 const INACTIVITY_X_MS = 60 * 1000; // X seconds before modal

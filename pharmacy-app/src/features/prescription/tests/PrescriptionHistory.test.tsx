@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { PrescriptionSummaryDto } from "@prescription/types/prescription.types";
 import type { PatientDetails } from "../types/models";
 import type { HistoryTableQuery } from "../utils/prescriptionHistoryUtils";
-import type { PrescriptionHistoryQueryParams } from "@api/prescription";
+import type { PrescriptionHistoryQueryParams } from "@prescription/api";
 
 /**
  * IMPORTANT: All mocks are declared BEFORE importing the SUT, and
@@ -49,13 +49,13 @@ vi.mock("../utils/prescriptionHistoryUtils", () => ({
 }));
 
 // -----------------------
-// Mock: Redux action creator (exact string: "@app/store/prescription/prescriptionSlice")
+// Mock: Redux action creator (exact string: "@prescription/slices")
 // -----------------------
 const fetchAllPrescriptionsMock = vi.fn((payload: PrescriptionHistoryQueryParams) => ({
   type: "prescriptions/fetchAll",
   payload,
 }));
-vi.mock("@app/store/prescription/prescriptionSlice", () => ({
+vi.mock("@prescription/slices", () => ({
   default: (state = {}) => state,
   fetchAllPrescriptions: (payload: PrescriptionHistoryQueryParams) =>
     fetchAllPrescriptionsMock(payload),

@@ -1,4 +1,4 @@
-import api from "./axiosInstance";
+import api from "@core/api/apiClient";
 import type { ValidationResultDto } from "./validation.dto";
 
 export async function getValidationResults(

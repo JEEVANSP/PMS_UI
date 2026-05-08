@@ -1,4 +1,4 @@
-import type { PrescriptionHistoryQueryParams } from "@api/prescription";
+import type { PrescriptionHistoryQueryParams } from "@prescription/api";
 
 export type HistorySortDirection = "asc" | "desc";
 

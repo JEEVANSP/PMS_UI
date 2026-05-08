@@ -3,7 +3,7 @@ import { useAppDispatch } from "@app/store";
 
 import DataTable from "@components/common/Table/Table";
 import type { Column, ServerTableQuery } from "@components/common/Table/Table";
-import { fetchAllPrescriptions } from "@app/store/prescription/prescriptionSlice";
+import { fetchAllPrescriptions } from "@prescription/slices";
 
 import type { PrescriptionSummary } from "@prescription/domain/model";
 

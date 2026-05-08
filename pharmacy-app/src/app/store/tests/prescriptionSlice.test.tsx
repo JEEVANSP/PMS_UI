@@ -7,7 +7,7 @@ const getAllPrescriptionsMock = vi.fn();
 const cancelPrescriptionApiMock = vi.fn();
 const reviewPrescriptionApiMock = vi.fn();
 
-vi.mock("@api/prescription.ts", () => ({
+vi.mock("@prescription/api", () => ({
   createPrescription: (...args: unknown[]) => createPrescriptionApiMock(...args),
   getPrescriptionById: (...args: unknown[]) => getPrescriptionByIdMock(...args),
   getAllPrescriptions: (...args: unknown[]) => getAllPrescriptionsMock(...args),
@@ -23,7 +23,7 @@ import reducer, {
   fetchAllPrescriptions,
   fetchPrescriptionDetails,
   reviewPrescription,
-} from "../prescription/prescriptionSlice";
+} from "@prescription/slices";
 
 function makeStore() {
   return configureStore({

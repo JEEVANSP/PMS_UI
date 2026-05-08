@@ -4,7 +4,7 @@ import { extractApiError } from "@core/errors/httpError";
 import {
   fetchPrescriptionDetails,
   reviewPrescription as reviewPrescriptionThunk,
-} from "@app/store/prescription/prescriptionSlice";
+} from "@prescription/slices";
 import type { PrescriptionLineReviewDraft } from "@prescription/domain/model";
 
 type SubmitResult = { ok: true } | { ok: false; message: string };
