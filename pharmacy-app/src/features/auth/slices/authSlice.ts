@@ -1,29 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { jwtDecode } from "jwt-decode";
 import { loginApi, refreshApi, logoutApi } from "@auth/api";
 import { extractApiError } from "@core/errors/httpError";
-import { extractAuthError } from "@auth/types";
-import type { AuthState, User, UserRole } from "@auth/types";
-import type { LoginCredentialsDto } from "@auth/api";
-type TokenPayload = {
-  sub: string;
-  username: string;
-  role: UserRole;
-  exp: number;
-  avatarUrl?: string;
-};
+import { extractAuthError } from "@auth/utils/extractAuthError";
+import { decodeAccessToken } from "@auth/utils/decodeAccessToken";
+import type { AuthState } from "@auth/types";
+import type { LoginCredentialsDto, AuthTokenResponseDto } from "@auth/api";
 
 const initialState: AuthState = { user: null, accessToken: null, status: "idle" };
-// Helper to decode JWT
-const decodeToken = (token: string): User => {
-  const payload = jwtDecode<TokenPayload>(token);
-  return {
-    id: payload.sub,
-    username: payload.username,
-    role: payload.role,
-    avatarUrl: payload.avatarUrl,
-  };
-};
 
 const getErrorMessage = (error: unknown): string => {
   if (typeof error === "string") return error;
@@ -34,8 +17,12 @@ const getErrorMessage = (error: unknown): string => {
   return "Unknown error";
 };
 
-// Thunks
-export const loginUser = createAsyncThunk(
+// Thunks with explicit types
+export const loginUser = createAsyncThunk<
+  AuthTokenResponseDto,
+  LoginCredentialsDto,
+  { rejectValue: string }
+>(
   "auth/login",
   async (credentials: LoginCredentialsDto, { rejectWithValue }) => {
     try {
@@ -47,21 +34,30 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-export const refreshAccess = createAsyncThunk(
+export const refreshAccess = createAsyncThunk<
+  AuthTokenResponseDto,
+  void,
+  { rejectValue: string }
+>(
   "auth/refresh",
   async (_, { rejectWithValue }) => {
     try {
       const res = await refreshApi();
       return res; // { accessToken }
     } catch (error) {
-      return rejectWithValue(extractApiError(error) || getErrorMessage(error) || "Refresh failed");
+      return rejectWithValue(
+        extractApiError(error) || getErrorMessage(error) || "Refresh failed"
+      );
     }
   }
 );
 
-export const serverLogout = createAsyncThunk("auth/logout", async () => {
-  await logoutApi();
-});
+export const serverLogout = createAsyncThunk<void, void, { rejectValue: string }>(
+  "auth/logout",
+  async () => {
+    await logoutApi();
+  }
+);
 
 // Slice
 const authSlice = createSlice({
@@ -85,7 +81,7 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.accessToken = action.payload.accessToken;
-        state.user = decodeToken(action.payload.accessToken);
+        state.user = decodeAccessToken(action.payload.accessToken);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = "failed";
@@ -97,7 +93,7 @@ const authSlice = createSlice({
       // REFRESH
       .addCase(refreshAccess.fulfilled, (state, action) => {
         state.accessToken = action.payload.accessToken;
-        state.user = decodeToken(action.payload.accessToken);
+        state.user = decodeAccessToken(action.payload.accessToken);
       })
       .addCase(refreshAccess.rejected, (state) => {
         // Clear state on refresh failure to force logout

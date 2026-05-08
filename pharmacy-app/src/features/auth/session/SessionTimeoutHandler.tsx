@@ -1,12 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@app/store";
 import { useSessionTimeout } from "./useSessionTimeout";
-import WarningModal from "./WarningModal";
+import SessionTimeoutModal from "@auth/components/SessionTimeoutModal";
 import { refreshAccess, logout, serverLogout } from "@auth/slices";
-
-// ✅ CONFIG
-const INACTIVITY_X_MS = 60 * 1000; // X seconds before modal
-const WARNING_Y_SEC = 10;          // Y seconds countdown
+import {
+  SESSION_INACTIVITY_WARNING_MS,
+  SESSION_WARNING_COUNTDOWN_SEC,
+} from "./session.config";
 
 export default function SessionTimeoutHandler() {
   const dispatch = useAppDispatch();
@@ -16,17 +16,17 @@ export default function SessionTimeoutHandler() {
   );
 
   const [showWarning, setShowWarning] = useState(false);
-  const [countdown, setCountdown] = useState(WARNING_Y_SEC);
+  const [countdown, setCountdown] = useState(SESSION_WARNING_COUNTDOWN_SEC);
 
   // ✅ Triggered AFTER X seconds of inactivity
   const handleInactive = useCallback(() => {
     setShowWarning(true);
-    setCountdown(WARNING_Y_SEC);
+    setCountdown(SESSION_WARNING_COUNTDOWN_SEC);
   }, []);
 
   // ✅ Inactivity timer (paused during warning)
   useSessionTimeout({
-    inactivityMs: INACTIVITY_X_MS,
+    inactivityMs: SESSION_INACTIVITY_WARNING_MS,
     enabled: isAuthenticated && !showWarning,
     onInactive: handleInactive,
   });
@@ -55,7 +55,7 @@ export default function SessionTimeoutHandler() {
     if (!isAuthenticated) {
       const resetTimer = window.setTimeout(() => {
         setShowWarning(false);
-        setCountdown(WARNING_Y_SEC);
+        setCountdown(SESSION_WARNING_COUNTDOWN_SEC);
       }, 0);
 
       return () => window.clearTimeout(resetTimer);
@@ -67,14 +67,14 @@ export default function SessionTimeoutHandler() {
     try {
       await dispatch(refreshAccess()).unwrap();
       setShowWarning(false); // re‑enables inactivity timer
-      setCountdown(WARNING_Y_SEC);
+      setCountdown(SESSION_WARNING_COUNTDOWN_SEC);
     } catch {
       // refresh failed → countdown continues
     }
   };
 
   return (
-    <WarningModal
+    <SessionTimeoutModal
       open={showWarning}
       countdown={countdown}
       onContinue={continueSession}

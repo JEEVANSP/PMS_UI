@@ -14,10 +14,10 @@ import TrendIndicator from "@components/common/TrendIndicator/TrendIndicator";
 
 import { formatDateTime, statusStyle } from "@prescription/utils/prescriptionHistoryUtils";
 import type { PrescriptionSummary } from "@prescription/domain/model";
-
-import { fetchAllPrescriptions } from "@prescription/slices";
+import { isSameDay } from "@dashboard/utils/dashboardUtils";
 import { useDashboardData } from "@dashboard/hooks/useDashboardData";
-import  { isSameDay } from "@auth/utils/Pharmacistdashboardutils"; 
+
+import { fetchAllPrescriptions } from "@prescription/slices"; 
 
 /* ---------------------------------- */
 /* Component */

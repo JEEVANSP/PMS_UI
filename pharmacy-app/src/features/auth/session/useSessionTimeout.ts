@@ -6,7 +6,13 @@ type Options = {
   onInactive: () => void;
 };
 
-const events = ["mousemove", "mousedown", "keydown", "scroll", "touchstart"];
+const events: Array<keyof WindowEventMap> = [
+  "mousemove",
+  "mousedown",
+  "keydown",
+  "scroll",
+  "touchstart",
+];
 
 export function useSessionTimeout({
   inactivityMs,

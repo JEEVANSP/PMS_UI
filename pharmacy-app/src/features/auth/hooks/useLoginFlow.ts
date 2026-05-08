@@ -1,40 +1,17 @@
-import { useCallback, useMemo, useState } from "react";
-import { useAppDispatch } from "@app/store";
-import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import { useCallback, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@app/store";
 
 import { loginUser } from "@auth/slices";
 
 import { useToast } from "@components/common/Toast/useToast";
-import { getDashboardRoute } from "@auth/utils/getDashboardRoute";
-import { extractAuthError } from "@auth/types";
-import type { UserRole } from "@auth/types";
+import { extractAuthError } from "@auth/utils/extractAuthError";
 
-type TokenPayload = {
-  role: UserRole;
-};
-
-type LoginFlowDeps = {
-  /** For testability: allow injecting a decoder */
-  decodeToken?: (token: string) => TokenPayload;
-  /** For testability: allow injecting route mapping */
-  getRoute?: (role: UserRole) => string;
-};
-
-export function useLoginFlow(deps?: LoginFlowDeps) {
+export function useLoginFlow() {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const { success } = useToast();
 
-  const decode = useMemo(
-    () => deps?.decodeToken ?? ((t: string) => jwtDecode<TokenPayload>(t)),
-    [deps?.decodeToken]
-  );
-
-  const routeFor = useMemo(
-    () => deps?.getRoute ?? getDashboardRoute,
-    [deps?.getRoute]
-  );
+  // Read updated user from state after login
+  const user = useAppSelector((s) => s.auth.user);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -49,26 +26,20 @@ export function useLoginFlow(deps?: LoginFlowDeps) {
 
         if (!res?.accessToken) {
           setErrorMessage("Login failed: No access token returned.");
-          return { ok: false as const };
+          return { ok: false as const, user: null };
         }
 
-        const payload = decode(res.accessToken);
-
-        if (!payload?.role) {
-          setErrorMessage("Login failed: Invalid token payload.");
-          return { ok: false as const };
-        }
         success("Successfully logged in");
 
-        navigate(routeFor(payload.role));
-        return { ok: true as const };
+        // Return the current user from state (authSlice already decoded it)
+        return { ok: true as const, user };
       } catch (err: unknown) {
         setErrorMessage(extractAuthError(err));
-        return { ok: false as const };
+        return { ok: false as const, user: null };
       }
     },
-    [decode, dispatch, navigate, routeFor, success]
+    [dispatch, success, user]
   );
 
-  return { login, errorMessage, clearError };
+  return { login, errorMessage, clearError, user };
 }
