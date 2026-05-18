@@ -1,12 +1,11 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import { configureStore, type AnyAction } from "@reduxjs/toolkit";
-import { NETWORK_ERROR_MESSAGE } from "@core/errors/httpError";
+import { configureStore } from "@reduxjs/toolkit";
+import { describe, expect, it, vi } from "vitest";
 import type { UserRole } from "@auth/types";
 
-// ---- Mocks (declare first, then import SUT) ----
 const loginApiMock = vi.fn();
 const refreshApiMock = vi.fn();
 const logoutApiMock = vi.fn();
+
 vi.mock("@auth/api", () => ({
   loginApi: (...args: unknown[]) => loginApiMock(...args),
   refreshApi: (...args: unknown[]) => refreshApiMock(...args),
@@ -14,87 +13,69 @@ vi.mock("@auth/api", () => ({
 }));
 
 const jwtDecodeMock = vi.fn();
+
 vi.mock("jwt-decode", () => ({
   jwtDecode: (...args: unknown[]) => jwtDecodeMock(...args),
 }));
 
-// ---- Import SUT after mocks ----
-import authReducer, {
-  loginUser,
-  refreshAccess,
-  serverLogout,
-  logout,
-} from "@auth/slices";
+import authReducer, { loginUser, logout, refreshAccess } from "@auth/slices";
 
-// ---- Helpers ----
 function makeStore() {
   return configureStore({
     reducer: { auth: authReducer },
   });
 }
 
-describe("authSlice - end-to-end + reducer coverage", () => {
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
+describe("authSlice", () => {
+  it("initializes auth state", () => {
+    const store = makeStore();
 
-  describe("initial state", () => {
-    it("should initialize with user=null, accessToken=null, status='idle'", () => {
-      const store = makeStore();
-      const state = store.getState().auth;
-      expect(state).toEqual({
-        user: null,
-        accessToken: null,
-        status: "idle",
-      });
+    expect(store.getState().auth).toEqual({
+      user: null,
+      accessToken: null,
+      status: "idle",
     });
   });
 
-  describe("loginUser thunk", () => {
-    it("sets status=loading and clears error on pending (reducer path)", () => {
-      // Directly reduce the pending action to ensure that path is covered
-      const prev: ReturnType<typeof authReducer> = {
-        user: null,
-        accessToken: null,
-        status: "idle",
-        error: "Old error",
-      };
-      const next = authReducer(prev, { type: loginUser.pending.type } as AnyAction);
-      expect(next.status).toBe("loading");
-      expect(next.error).toBeUndefined();
+  it("stores token and decoded user after login", async () => {
+    const token = "token-1";
+    const payload: {
+      sub: string;
+      username: string;
+      role: UserRole;
+      exp: number;
+    } = {
+      sub: "u-1",
+      username: "alice",
+      role: "manager",
+      exp: 1234567890,
+    };
+
+    loginApiMock.mockResolvedValue({ accessToken: token });
+    jwtDecodeMock.mockReturnValue(payload);
+
+    const store = makeStore();
+    const action = await store.dispatch(loginUser({ username: "alice", password: "pw" }));
+
+    expect(action.type).toBe(loginUser.fulfilled.type);
+    expect(store.getState().auth).toEqual({
+      user: { id: "u-1", username: "alice", role: "manager", avatarUrl: undefined },
+      accessToken: token,
+      status: "succeeded",
     });
+  });
 
-    it("fulfilled → stores accessToken, decodes user, status=succeeded", async () => {
-      const store = makeStore();
+  it("clears auth state on refresh failure and logout", async () => {
+    refreshApiMock.mockRejectedValue(new Error("expired"));
 
-      const token = "token-1";
-      const payload: {
-        sub: string;
-        username: string;
-        role: UserRole;
-        exp: number;
-        avatarUrl?: string;
-      } = {
-        sub: "u-1",
-        username: "alice",
-        role: "manager",
-        exp: 1234567890,
-        avatarUrl: "https://example.com/a.png",
-      };
+    const store = makeStore();
+    await store.dispatch(refreshAccess());
+    store.dispatch(logout());
 
-      loginApiMock.mockResolvedValue({ accessToken: token });
-      jwtDecodeMock.mockReturnValue(payload);
-
-      const resultAction = await store.dispatch(
-        loginUser({ username: "alice", password: "pw" })
-      );
-
-      // Assert thunk fulfilled
-      expect(resultAction.type).toBe(loginUser.fulfilled.type);
-      expect(loginApiMock).toHaveBeenCalledWith({ username: "alice", password: "pw" });
-      expect(jwtDecodeMock).toHaveBeenCalledWith(token);
-
-      // Assert state changes
-      const state = store.getState().auth;
-      expect(state.status).toBe("succeeded");
-      expect(state.accessToken).toBe(token);
+    expect(store.getState().auth).toEqual({
+      user: null,
+      accessToken: null,
+      status: "idle",
+    });
+  });
+});

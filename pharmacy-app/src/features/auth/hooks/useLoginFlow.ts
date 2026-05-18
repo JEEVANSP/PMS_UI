@@ -1,12 +1,17 @@
 import { useCallback, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@app/store";
 
-import { loginUser } from "@auth/slices";
+import { loginUser } from "@auth/slices/authSlice";
 
-import { useToast } from "@components/common/Toast/useToast";
+import { useToast } from "@shared/ui/toast";
 import { extractAuthError } from "@auth/utils/extractAuthError";
 
-export function useLoginFlow() {
+type LoginFlowOptions = {
+  decodeToken?: (token: string) => unknown;
+  getRoute?: (role: string) => string;
+};
+
+export function useLoginFlow(_options?: LoginFlowOptions) {
   const dispatch = useAppDispatch();
   const { success } = useToast();
 
@@ -43,3 +48,4 @@ export function useLoginFlow() {
 
   return { login, errorMessage, clearError, user };
 }
+

@@ -10,7 +10,7 @@ vi.mock("@api/catalogs", () => ({
   searchAllergies: vi.fn(),
 }));
 
-vi.mock("@components/common/Input/Input", () => ({
+vi.mock("@shared/ui/Input/Input", () => ({
   default: ({
     label,
     value,
@@ -66,7 +66,7 @@ vi.mock("@components/common/Dropdown/Dropdown", () => ({
   ),
 }));
 
-vi.mock("@components/common/PhoneInput/PhoneInput", () => ({
+vi.mock("@shared/form/PhoneInput", () => ({
   default: ({
     value,
     onChange,
@@ -284,3 +284,4 @@ describe("PatientFormModal", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
+

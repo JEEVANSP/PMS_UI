@@ -11,7 +11,7 @@ import {
   type PaymentTransactionsQuery,
   type PaymentTransactionItemDto,
 } from "@api/payments.api";
-import type { ServerTableQuery } from "@components/common/Table/Table";
+import type { ServerTableQuery } from "@shared/ui/Table/Table";
 
 const toISODate = (value: string) => {
   const t = value.indexOf("T");
@@ -238,3 +238,4 @@ export function usePaymentDashboard() {
     handleServerQueryChange,
   };
 }
+

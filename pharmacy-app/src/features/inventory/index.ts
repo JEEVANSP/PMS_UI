@@ -11,4 +11,4 @@ export * from "./hooks";
 
 // Types
 export * from "./types";
-export { type TechnicianInventoryItem } from "./technician.types";
+export type { InventoryItem as TechnicianInventoryItem } from "./technician.types";

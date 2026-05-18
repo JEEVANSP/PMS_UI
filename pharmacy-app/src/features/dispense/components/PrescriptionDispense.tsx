@@ -7,10 +7,10 @@ import {
   SkipForward, RefreshCw, SendHorizonal, Printer,
 } from "lucide-react";
 
-import Button from "@components/common/Button/Button";
-import Input  from "@components/common/Input/Input";
-import Badge  from "@components/common/Badge/Badge";
-import { useToast } from "@components/common/Toast/useToast";
+import Button from "@shared/ui/Button/Button";
+import Input  from "@shared/ui/Input/Input";
+import Badge  from "@shared/ui/Badge/Badge";
+import { useToast } from "@shared/ui/toast";
 import { cancelDispense, executeDispenseWithEtag, markDispenseReadyWithEtag } from "@api/dispense";
 import type { PrescriptionSummaryDto } from "@prescription/api";
 
@@ -537,7 +537,9 @@ ${insuranceLine}
                               value={qty === 0 ? "" : String(qty)}
                               placeholder="0"
                               disabled={false}
-                              onChange={(val) => dispense.handleQtyChange(row.id, val)}
+                              onChange={(event) =>
+                                dispense.handleQtyChange(row.id, event.target.value)
+                              }
                               className={`w-20 h-8 text-center font-mono text-sm ${
                                 hasDispErr ? "border-red-400 bg-red-50" : qty > 0 ? "border-green-300 bg-green-50/60" : ""
                               }`}
@@ -567,7 +569,9 @@ ${insuranceLine}
                             value={ext === 0 ? "" : String(ext)}
                             placeholder="0"
                             disabled={false}
-                            onChange={(val) => dispense.handleExternalQtyChange(row.id, val)}
+                            onChange={(event) =>
+                              dispense.handleExternalQtyChange(row.id, event.target.value)
+                            }
                             className={`w-20 h-8 text-center font-mono text-sm ${
                               hasExtErr ? "border-red-400 bg-red-50" : ext > 0 ? "border-amber-300 bg-amber-50/60" : "bg-gray-50"
                             }`}
@@ -829,7 +833,7 @@ ${insuranceLine}
                       <Input
                         label="Transaction / Reference ID"
                         value={billing.txnId}
-                        onChange={(val) => billing.setTxnId(val)}
+                        onChange={(event) => billing.setTxnId(event.target.value)}
                         placeholder="Enter transaction ID"
                         className={`font-mono text-sm ${billing.txnIdError ? "border-red-400 bg-red-50" : ""}`}
                       />
@@ -1000,6 +1004,8 @@ function QueueCard({
     </div>
   );
 }
+
+
 
 
 

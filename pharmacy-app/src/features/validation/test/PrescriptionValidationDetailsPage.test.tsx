@@ -7,7 +7,12 @@ import type { PrescriptionDetails, PrescriptionLineReviewDraft } from "@prescrip
 
 const mockNavigate = vi.fn();
 const mockSubmitReview = vi.fn<
-  (reviews: PrescriptionLineReviewDraft[], etag: string) => Promise<{ ok: true } | { ok: false; message: string }>
+  (
+    rxId: string,
+    patientId: string,
+    reviews: PrescriptionLineReviewDraft[],
+    etag: string
+  ) => Promise<{ ok: true } | { ok: false; message: string }>
 >();
 const mockRefetch = vi.fn();
 const mockToast = {
@@ -105,6 +110,7 @@ const baseData: PrescriptionDetails = {
 };
 
 let detailsData: PrescriptionDetails = baseData;
+let detailsEtag = "etag-1";
 
 vi.mock("react-router-dom", async (importOriginal) => {
   const actual = await importOriginal<typeof import("react-router-dom")>();
@@ -115,14 +121,14 @@ vi.mock("react-router-dom", async (importOriginal) => {
   };
 });
 
-vi.mock("@components/common/Toast/useToast", () => ({
+vi.mock("@shared/ui/toast", () => ({
   useToast: () => mockToast,
 }));
 
 vi.mock("@validation/hooks/usePrescriptionDetails", () => ({
   usePrescriptionDetails: () => ({
     data: detailsData,
-    etag: "etag-1",
+    etag: detailsEtag,
     loading: false,
     error: null,
     refetch: mockRefetch,
@@ -133,8 +139,6 @@ vi.mock("@validation/hooks/usePrescriptionReview", () => ({
   usePrescriptionReview: () => ({
     submitting: false,
     submitReview: mockSubmitReview,
-    latestEtag: null,
-    latestSnapshot: null,
   }),
 }));
 
@@ -185,6 +189,7 @@ describe("PrescriptionValidationDetailsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     detailsData = baseData;
+    detailsEtag = "etag-1";
     uiState = {
       data: null,
       decisions: {},
@@ -247,6 +252,36 @@ describe("PrescriptionValidationDetailsPage", () => {
     });
   });
 
+  it("blocks submit when the current view has no ETag", async () => {
+    detailsEtag = "";
+    uiState.decisions = {
+      "line-1": "Approved",
+      "line-2": "Approved",
+    };
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: "Submit Review" }));
+
+    await waitFor(() => {
+      expect(mockSubmitReview).toHaveBeenCalledWith(
+        "RX123",
+        "P001",
+        [
+          {
+            prescriptionLineId: "line-1",
+            status: "Approved",
+            notes: null,
+          },
+          {
+            prescriptionLineId: "line-2",
+            status: "Approved",
+            notes: null,
+          },
+        ],
+        "",
+      );
+    });
+  });
+
   it("forces single-medicine rejection through Reject Entire Prescription instead of Submit Review", () => {
     detailsData = {
       ...baseData,
@@ -262,3 +297,4 @@ describe("PrescriptionValidationDetailsPage", () => {
     expect(screen.getByRole("button", { name: "Reject Entire Prescription" })).not.toBeDisabled();
   });
 });
+

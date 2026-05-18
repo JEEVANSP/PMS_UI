@@ -21,7 +21,7 @@ type ToastMock = {
   error: ReturnType<typeof vi.fn>;
 };
 
-vi.mock("@components/common/Toast/useToast", () => {
+vi.mock("@shared/ui/toast", () => {
   const toastMock: ToastMock = {
     success: vi.fn(),
     error: vi.fn(),
@@ -64,7 +64,7 @@ vi.mock("@prescription/utils/validation", () => {
 
 /* -------------------- IMPORT MOCK HANDLES -------------------- */
 
-import * as ToastModule from "@components/common/Toast/useToast";
+import * as ToastModule from "@shared/ui/toast";
 import { getPatientById } from "@api/patient";
 import { createPrescription } from "@prescription/api";
 import {
@@ -458,3 +458,4 @@ it("computes isNextDisabled based on step-specific validations", () => {
     expect(result.current.draft.medications.length).toBe(1);
   });
 });
+

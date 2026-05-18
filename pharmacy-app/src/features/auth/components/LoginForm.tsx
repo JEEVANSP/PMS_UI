@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import clsx from "clsx";
-import { useToast } from "@components/common/Toast/useToast";
 
 const inputClass = (extraClasses?: string) =>
   clsx(
@@ -136,3 +135,4 @@ export default function LoginForm({
     </form>
   );
 }
+

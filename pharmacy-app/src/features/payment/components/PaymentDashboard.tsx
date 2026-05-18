@@ -15,8 +15,8 @@ import {
   User,
 } from "lucide-react";
 
-import DataTable from "@components/common/Table/Table";
-import type { Column } from "@components/common/Table/Table";
+import DataTable from "@shared/ui/Table/Table";
+import type { Column } from "@shared/ui/Table/Table";
 import type { PaymentTransactionItemDto } from "@api/payments.api";
 
 import { usePaymentDashboard } from "../hooks/usePaymentDashboard";
@@ -367,3 +367,4 @@ export default function PaymentDashboard() {
     </div>
   );
 }
+

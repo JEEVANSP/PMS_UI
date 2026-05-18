@@ -318,7 +318,7 @@ describe("usePrescriptionHistoryData", () => {
     mockState = seedState({
       prescriptions: {
         items: [row],
-        selected: { prescription: makeDetails({ id: "rx-7" }), etag: "etag-1" },
+        selected: makeDetails({ id: "rx-7" }),
         continuationToken: null,
         status: "succeeded",
         error: undefined,
@@ -366,7 +366,7 @@ describe("usePrescriptionHistoryData", () => {
     mockState = seedState({
       prescriptions: {
         items: [row],
-        selected: { prescription: makeDetails({ id: "rx-OTHER" }), etag: "etag-1" },
+        selected: makeDetails({ id: "rx-OTHER" }),
         continuationToken: null,
         status: "succeeded",
         error: undefined,
@@ -386,7 +386,7 @@ describe("usePrescriptionHistoryData", () => {
     mockState = seedState({
       prescriptions: {
         items: [row],
-        selected: { prescription: makeDetails({ id: "rx-123" }), etag: "etag-1" },
+        selected: makeDetails({ id: "rx-123" }),
         continuationToken: null,
         status: "succeeded",
         error: undefined,

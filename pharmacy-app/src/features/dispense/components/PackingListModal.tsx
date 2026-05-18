@@ -1,6 +1,6 @@
 import { Package, User, Calendar, Pill, CheckCircle, X, RefreshCw } from "lucide-react";
-import Modal from "@components/common/Modal/Modal";
-import Button from "@components/common/Button/Button";
+import Modal from "@shared/ui/Modal/Modal";
+import Button from "@shared/ui/Button/Button";
 import type { DispenseDetailsDto, DispenseSummaryDto } from "@api/dispense";
 
 interface PackingListModalProps {

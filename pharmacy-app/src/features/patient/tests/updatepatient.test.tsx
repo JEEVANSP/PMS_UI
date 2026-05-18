@@ -14,7 +14,7 @@ const toast = {
   showToast: vi.fn(),
 };
 
-vi.mock("@components/common/Toast/useToast", () => ({
+vi.mock("@shared/ui/toast", () => ({
   useToast: () => toast,
 }));
 
@@ -118,3 +118,4 @@ describe("UpdatePatientModal", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
+

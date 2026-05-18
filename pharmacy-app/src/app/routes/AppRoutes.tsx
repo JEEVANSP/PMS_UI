@@ -2,8 +2,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { Suspense } from "react";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
-import PageLoader from "@components/common/Loader/PageLoader";
-import AppLayout from "@components/layouts/Applayout/Applayout";
+import PageLoader from "@shared/ui/Loader/PageLoader";
+import AppLayout from "@app/layouts/Applayout/Applayout";
 import { ROUTES } from "@constants/routes";
 import {
   LoginPage,
@@ -72,3 +72,5 @@ export default function AppRoutes() {
     </Suspense>
   );
 }
+
+

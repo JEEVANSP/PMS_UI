@@ -9,7 +9,6 @@ import type {
   PrescriptionHistoryQueryParams,
   PrescriptionListResponseDto,
   PrescriptionSummaryDto,
-  ReviewPrescriptionRequestDto,
 } from "./prescription.dto";
 
 function isNonEmptyString(value: unknown): value is string {
@@ -28,14 +27,14 @@ export function extractEtag(headers: unknown): string | undefined {
   const getter = headers as { get?: (name: string) => unknown };
   if (typeof getter.get === "function") {
     const viaGetter = normalizeEtag(
-      getter.get("etag") ?? getter.get("ETag") ?? getter.get("Etag"),
+      getter.get("Etag") ?? getter.get("ETag") ?? getter.get("etag"),
     );
     if (viaGetter) return viaGetter;
   }
 
   if (typeof headers === "object" && headers !== null) {
     const record = headers as Record<string, unknown>;
-    return normalizeEtag(record.etag ?? record.ETag ?? record.Etag);
+    return normalizeEtag(record.Etag ?? record.ETag ?? record.etag);
   }
 
   return undefined;
@@ -43,7 +42,10 @@ export function extractEtag(headers: unknown): string | undefined {
 
 function requireEtag(etag: string): string {
   if (!isNonEmptyString(etag)) throw new Error("Missing ETag");
-  return etag.trim();
+  const trimmed = etag.trim();
+  // ETag is stored without quotes (normalizeEtag strips them).
+  // If-Match requires a quoted entity-tag per HTTP spec.
+  return trimmed.startsWith('"') ? trimmed : `"${trimmed}"`;
 }
 
 function toSummaryDto(
@@ -98,7 +100,8 @@ export async function createPrescription(
   payload: CreatePrescriptionRequestDto,
 ): Promise<ApiEntityResponse<PrescriptionDetailsDto>> {
   const res = await api.post<PrescriptionDetailsDto>(ENDPOINTS.prescriptions, payload);
-  return { data: res.data, etag: extractEtag(res.headers) };
+  const Etag = extractEtag(res.headers);
+  return { data: res.data, Etag, etag: Etag };
 }
 
 export async function getAllPrescriptions(
@@ -160,22 +163,15 @@ export async function getPrescriptionById(
   const res = await api.get<PrescriptionDetailsDto>(ENDPOINTS.prescriptionById(id), {
     params: { patientId },
   });
-
-  return { data: res.data, etag: extractEtag(res.headers) };
-}
-
-export async function reviewPrescription(
-  id: string,
-  patientId: string,
-  payload: ReviewPrescriptionRequestDto,
-  etag: string,
-): Promise<string | undefined> {
-  const res = await api.put(`/api/prescriptions/${id}/review`, payload, {
-    params: { patientId },
-    headers: { "If-Match": requireEtag(etag) },
+  const Etag = extractEtag(res.headers);
+  console.log("Prescription GET Etag", {
+    id,
+    patientId,
+    Etag,
+    headers: res.headers,
   });
 
-  return extractEtag(res.headers);
+  return { data: res.data, Etag, etag: Etag };
 }
 
 export async function cancelPrescription(

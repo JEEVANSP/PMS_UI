@@ -3,7 +3,7 @@ import { LabelQueueList } from "@labels/components/LabelQueueList";
 import { LabelPreview } from "@labels/components/LabelPreview";
 import { useLabelQueue } from "@labels/hooks/useLabelQueue";
 import { useLabelPrescriptionDetails } from "@labels/hooks/useLabelPrescriptionDetails";
-import { toast } from "@components/common/Toast/toastService";
+import { toast } from "@shared/ui/toast";
 
 export default function LabelGenerationPage() {
   const [isPrinting, setIsPrinting] = useState(false);
@@ -272,3 +272,4 @@ export default function LabelGenerationPage() {
     </div>
   );
 }
+

@@ -9,12 +9,15 @@ export const ENDPOINTS = {
   patientSearch: "/api/patients/search",
 
   allergySearch: "/api/catalogs/allergies/search",
+  ALLERGY_SEARCH_ENDPOINT: "/api/catalogs/allergies/search",
 
   products: "/api/products/search",
 
   prescriptions: "/api/prescriptions",
   prescriptionById: (id: string) => `/api/prescriptions/${id}`,
   prescriptionsByPatient: (patientId: string) => `/api/prescriptions/patient/${patientId}`,
+  prescriptionValidate: (id: string) => `/api/prescriptions/${id}/validate`,
+  prescriptionReview: (id: string) => `/api/prescriptions/${id}/review`,
   prescriptionDispensePreview: (id: string) =>
     `/api/prescriptions/${id}/dispense-preview`,
 

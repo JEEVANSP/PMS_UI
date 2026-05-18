@@ -1,7 +1,7 @@
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./app/routes/AppRoutes";
-import { ToastProvider } from "@components/common/Toast/ToastProvider";
-import { ErrorBoundary } from "@components/common/ErrorBoundary/ErrorBoundary";
+import { ToastProvider } from "@shared/ui/toast";
+import { ErrorBoundary } from "@shared/errors";
 import SessionTimeoutHandler from "@auth/session/SessionTimeoutHandler";
 
 export default function App() {
@@ -16,3 +16,4 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+

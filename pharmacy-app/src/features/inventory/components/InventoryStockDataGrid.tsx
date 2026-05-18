@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { AlertTriangle, Calendar, CheckCircle, ChevronDown, ChevronRight } from "lucide-react";
-import Button from "@components/common/Button/Button";
-import DataTable, { type Column, type ServerTableQuery } from "@components/common/Table/Table";
+import Button from "@shared/ui/Button/Button";
+import DataTable, { type Column, type ServerTableQuery } from "@shared/ui/Table/Table";
 import type { InventoryStatus, RestockProduct } from "@inventory/types/inventory.types";
 import {
   formatInventoryDate,

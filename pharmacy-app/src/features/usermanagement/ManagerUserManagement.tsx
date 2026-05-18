@@ -11,13 +11,13 @@ import {
   Users as UsersIcon,
 } from "lucide-react";
 
-import Button from "@components/common/Button/Button";
-import Checkbox from "@components/common/Checkbox/Checkbox";
-import DataTable from "@components/common/Table/Table";
-import type { Column } from "@components/common/Table/Table";
+import Button from "@shared/ui/Button/Button";
+import Checkbox from "@shared/ui/Checkbox/Checkbox";
+import DataTable from "@shared/ui/Table/Table";
+import type { Column } from "@shared/ui/Table/Table";
 import Dropdown from "@components/common/Dropdown/Dropdown";
-import Input from "@components/common/Input/Input";
-import { useToast } from "@components/common/Toast/useToast";
+import Input from "@shared/ui/Input/Input";
+import { useToast } from "@shared/ui/toast";
 
 import {
   activateUser,
@@ -548,7 +548,9 @@ export default function ManagerUserManagement() {
               <Input
                 label="Full Name"
                 value={createForm.fullName}
-                onChange={(value) => setCreateForm((prev) => ({ ...prev, fullName: value }))}
+                onChange={(event) =>
+                  setCreateForm((prev) => ({ ...prev, fullName: event.target.value }))
+                }
                 placeholder="Enter full name"
                 required
               />
@@ -557,7 +559,9 @@ export default function ManagerUserManagement() {
                 label="Email Address"
                 type="email"
                 value={createForm.email}
-                onChange={(value) => setCreateForm((prev) => ({ ...prev, email: value }))}
+                onChange={(event) =>
+                  setCreateForm((prev) => ({ ...prev, email: event.target.value }))
+                }
                 placeholder="Enter email address"
                 required
               />
@@ -566,7 +570,9 @@ export default function ManagerUserManagement() {
                 label="Temporary Password"
                 type="password"
                 value={createForm.password}
-                onChange={(value) => setCreateForm((prev) => ({ ...prev, password: value }))}
+                onChange={(event) =>
+                  setCreateForm((prev) => ({ ...prev, password: event.target.value }))
+                }
                 placeholder="Enter temporary password"
                 required
               />
@@ -613,14 +619,18 @@ export default function ManagerUserManagement() {
               <Input
                 label="Full Name"
                 value={editForm.fullName}
-                onChange={(value) => setEditForm((prev) => ({ ...prev, fullName: value }))}
+                onChange={(event) =>
+                  setEditForm((prev) => ({ ...prev, fullName: event.target.value }))
+                }
                 placeholder="Enter full name"
                 required
               />
               <Input
                 label="Email Address"
                 value={editForm.email}
-                onChange={(value) => setEditForm((prev) => ({ ...prev, email: value }))}
+                onChange={(event) =>
+                  setEditForm((prev) => ({ ...prev, email: event.target.value }))
+                }
                 placeholder="Enter email address"
                 required
               />
@@ -697,7 +707,12 @@ export default function ManagerUserManagement() {
                 label="New Password"
                 type="password"
                 value={passwordForm.newPassword}
-                onChange={(value) => setPasswordForm((prev) => ({ ...prev, newPassword: value }))}
+                onChange={(event) =>
+                  setPasswordForm((prev) => ({
+                    ...prev,
+                    newPassword: event.target.value,
+                  }))
+                }
                 placeholder="Enter new password"
                 required
               />
@@ -706,7 +721,12 @@ export default function ManagerUserManagement() {
                 label="Confirm Password"
                 type="password"
                 value={passwordForm.confirmPassword}
-                onChange={(value) => setPasswordForm((prev) => ({ ...prev, confirmPassword: value }))}
+                onChange={(event) =>
+                  setPasswordForm((prev) => ({
+                    ...prev,
+                    confirmPassword: event.target.value,
+                  }))
+                }
                 placeholder="Confirm new password"
                 required
               />
@@ -748,4 +768,6 @@ function StatCard({
     </div>
   );
 }
+
+
 

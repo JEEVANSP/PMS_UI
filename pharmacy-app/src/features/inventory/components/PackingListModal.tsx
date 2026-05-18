@@ -4,8 +4,8 @@
 // Shows actual lot numbers and expiry dates from dispense items.
 //
 import { Package, User, Calendar, Pill, FileBarChart, CheckCircle, X, RefreshCw } from "lucide-react";
-import Modal from "@components/common/Modal/Modal";
-import Button from "@components/common/Button/Button";
+import Modal from "@shared/ui/Modal/Modal";
+import Button from "@shared/ui/Button/Button";
 import type { DispenseDetailsDto, DispenseSummaryDto } from "@api/dispense";
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -311,3 +311,4 @@ export default function PackingListModal({
     </Modal>
   );
 }
+

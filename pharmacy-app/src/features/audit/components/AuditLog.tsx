@@ -1,6 +1,6 @@
-import Badge from "@components/common/Badge/Badge";
-import DataTable from "@components/common/Table/Table";
-import type { Column } from "@components/common/Table/Table";
+import Badge from "@shared/ui/Badge/Badge";
+import DataTable from "@shared/ui/Table/Table";
+import type { Column } from "@shared/ui/Table/Table";
 import type { AuditListItemDto } from "@api/audit";
 import { getAuditBadgeVariant } from "../utils/auditBadge";
 import { useAuditLogs } from "../hooks/useAuditLogs";
@@ -136,3 +136,4 @@ export default function AuditLog() {
     </div>
   );
 }
+

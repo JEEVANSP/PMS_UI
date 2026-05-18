@@ -43,7 +43,7 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-vi.mock("@components/common/Toast/useToast", () => ({
+vi.mock("@shared/ui/toast", () => ({
   useToast: () => ({ success: mockToastSuccess }),
 }));
 
@@ -236,3 +236,4 @@ describe("useLoginFlow (vitest)", () => {
     expect(jwtDecodeSpy).toHaveBeenCalledWith("abc.def.ghi");
   });
 });
+

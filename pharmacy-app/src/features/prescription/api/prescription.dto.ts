@@ -12,14 +12,6 @@ export interface CreatePrescriptionRequestDto {
   }[];
 }
 
-export interface ReviewPrescriptionRequestDto {
-  reviews: {
-    prescriptionLineId: string;
-    status: "Approved" | "Rejected";
-    notes?: string | null;
-  }[];
-}
-
 export interface PrescriptionValidationSummaryDto {
   totalIssues: number;
   highSeverityCount: number;
@@ -154,6 +146,7 @@ export interface PrescriptionListResponseDto {
 
 export interface ApiEntityResponse<T> {
   data: T;
+  Etag?: string;
   etag?: string;
 }
 

@@ -1,4 +1,4 @@
-ï»¿import { Fragment, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   CalendarX,
   CheckCircle,
@@ -13,12 +13,12 @@ import {
   XCircle,
 } from "lucide-react";
 
-import Button from "@components/common/Button/Button";
+import Button from "@shared/ui/Button/Button";
 import Dropdown from "@components/common/Dropdown/Dropdown";
-import Input from "@components/common/Input/Input";
-import Modal from "@components/common/Modal/Modal";
-import Textarea from "@components/common/TextArea/TextArea";
-import { useToast } from "@components/common/Toast/useToast";
+import Input from "@shared/ui/Input/Input";
+import Modal from "@shared/ui/Modal/Modal";
+import Textarea from "@shared/ui/TextArea/TextArea";
+import { useToast } from "@shared/ui/toast";
 import { searchAllergies } from "@api/catalogs";
 import {
   createManagerProduct,
@@ -277,7 +277,7 @@ export default function ManagerInventoryManagement() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Inventory Management</h1>
-          <p className="text-sm text-gray-500">{totalProducts || stockProducts.length} products Â· {visibleLotsCount} visible lots</p>
+          <p className="text-sm text-gray-500">{totalProducts || stockProducts.length} products · {visibleLotsCount} visible lots</p>
         </div>
       </div>
 
@@ -392,7 +392,7 @@ function StockOverview({
                   <Fragment key={product.id}>
                     <tr className={`cursor-pointer border-b border-gray-100 transition-colors hover:bg-gray-50/60 ${index % 2 === 0 ? "" : "bg-gray-50/30"}`} onClick={() => void onToggleExpand(product.id)}>
                       <td className="px-4 py-3 text-gray-400">{isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}</td>
-                      <td className="px-4 py-3"><div className="font-semibold text-gray-900">{product.name}</div><div className="text-xs text-gray-500">{product.strength} Â· {product.id}</div></td>
+                      <td className="px-4 py-3"><div className="font-semibold text-gray-900">{product.name}</div><div className="text-xs text-gray-500">{product.strength} · {product.id}</div></td>
                       <td className="px-4 py-3 text-gray-700">{product.form}</td>
                       <td className="px-4 py-3 text-gray-600">{product.manufacturer}</td>
                       <td className="px-4 py-3 text-right font-semibold text-gray-900">{product.totalQuantityAvailable.toLocaleString()}</td>
@@ -528,18 +528,18 @@ function AddMedicineForm({
 
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Input label="Product Name" value={name} onChange={setName} placeholder="e.g. Lisinopril" required />
-            <Input label="Strength" value={strength} onChange={setStrength} placeholder="e.g. 10mg" required />
+            <Input label="Product Name" value={name} onChange={(event) => setName(event.target.value)} placeholder="e.g. Lisinopril" required />
+            <Input label="Strength" value={strength} onChange={(event) => setStrength(event.target.value)} placeholder="e.g. 10mg" required />
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Dropdown label="Form" value={form} onChange={setForm} options={PRODUCT_FORMS} />
-            <Input label="Manufacturer" value={manufacturer} onChange={setManufacturer} placeholder="e.g. Pfizer" required />
+            <Input label="Manufacturer" value={manufacturer} onChange={(event) => setManufacturer(event.target.value)} placeholder="e.g. Pfizer" required />
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Input label="Unit Price" type="number" value={unitPrice} onChange={setUnitPrice} placeholder="e.g. 12.50" required />
-            <Input label="Tax Percent" type="number" value={taxPercent} onChange={setTaxPercent} placeholder="e.g. 5" required />
+            <Input label="Unit Price" type="number" value={unitPrice} onChange={(event) => setUnitPrice(event.target.value)} placeholder="e.g. 12.50" required />
+            <Input label="Tax Percent" type="number" value={taxPercent} onChange={(event) => setTaxPercent(event.target.value)} placeholder="e.g. 5" required />
           </div>
 
           <AllergySelector
@@ -709,9 +709,9 @@ function RestockRequestsPanel({
             <div className="text-blue-700">Product: {productDetailsById[selectedLot?.productId ?? ""]?.name ?? selectedLot?.productId}</div>
             <div className="text-blue-700">Requested: {selectedLot?.requestedQuantity} units</div>
           </div>
-          <Input label="Approved Quantity" type="number" value={approvedQuantity} onChange={setApprovedQuantity} required />
-          <Input label="Supplier Name" value={supplierName} onChange={setSupplierName} required />
-          <Input label="Expiry Date for New Lot" type="date" value={expiryDate} onChange={setExpiryDate} required />
+          <Input label="Approved Quantity" type="number" value={approvedQuantity} onChange={(event) => setApprovedQuantity(event.target.value)} required />
+          <Input label="Supplier Name" value={supplierName} onChange={(event) => setSupplierName(event.target.value)} required />
+          <Input label="Expiry Date for New Lot" type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.target.value)} required />
         </div>
         <div className="flex justify-end gap-3 border-t border-gray-100 px-6 py-4">
           <Button variant="secondary" onClick={closeApproveModal}>Cancel</Button>
@@ -822,7 +822,7 @@ function ExpiryManagement({
             <tbody>
               {filteredLots.map((lot, index) => (
                 <tr key={lot.id} className={`border-b border-gray-100 last:border-0 ${index % 2 === 0 ? "" : "bg-gray-50/30"}`}>
-                  <td className="px-4 py-3"><div className="font-semibold text-gray-900">{lot.productName}</div><div className="text-xs text-gray-500">{lot.strength} Â· {lot.form}</div></td>
+                  <td className="px-4 py-3"><div className="font-semibold text-gray-900">{lot.productName}</div><div className="text-xs text-gray-500">{lot.strength} · {lot.form}</div></td>
                   <td className="px-4 py-3 font-mono text-xs text-gray-700">{lot.id}</td>
                   <td className="px-4 py-3 text-right font-semibold text-gray-900">{lot.quantityAvailable}</td>
                   <td className="px-4 py-3 text-gray-700">{formatBackendDate(lot.expiry)}</td>
@@ -911,6 +911,8 @@ function ExpiryInfoCard({ tone, title, subtitle, value }: { tone: "red" | "orang
     </div>
   );
 }
+
+
 
 
 

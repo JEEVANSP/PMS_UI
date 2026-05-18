@@ -3,8 +3,8 @@ import type {
   PrescriptionDetailsDto,
   PrescriptionLineDto,
   PrescriptionSummaryDto,
-  ReviewPrescriptionRequestDto,
 } from "@prescription/api";
+import type { ReviewPrescriptionRequestDto } from "@validation/api";
 import type { PrescriptionDraft } from "@prescription/types/models";
 import type {
   PrescriptionDetails,

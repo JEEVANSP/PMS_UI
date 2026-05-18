@@ -34,7 +34,7 @@ const saveMock = vi.hoisted(() => vi.fn());
 
 /* ---------------- TOAST ---------------- */
 
-vi.mock("@components/common/Toast/toastService", () => ({
+vi.mock("@shared/ui/toast", () => ({
   toast: toastMock,
 }));
 
@@ -249,3 +249,4 @@ describe("LabelGenerationPage", () => {
     document.body.removeChild(label);
   });
 });
+

@@ -82,7 +82,7 @@ vi.mock("../components/PrescriptionExpandedDetails", () => {
 });
 
 // -----------------------
-// Mock: DataTable (exact string: "@components/common/Table/Table")
+// Mock: DataTable (exact string: "@shared/ui/Table/Table")
 // We render all column renderers for the first row to execute formatDateTime/statusStyle.
 // Also trigger renderExpandedRow, isRowExpanded, onRowClick, onServerQueryChange.
 // -----------------------
@@ -102,7 +102,7 @@ type DataTableProps = {
   onServerQueryChange?: (query: HistoryTableQuery) => void;
 };
 
-vi.mock("@components/common/Table/Table", () => {
+vi.mock("@shared/ui/Table/Table", () => {
   const MockDataTable = (props: DataTableProps) => {
     const rows = Array.isArray(props.data) ? props.data : [];
 
@@ -333,3 +333,4 @@ describe("PrescriptionHistory", () => {
     expect(screen.getByTestId("dt-loading").textContent).toBe("true");
   });
 });
+

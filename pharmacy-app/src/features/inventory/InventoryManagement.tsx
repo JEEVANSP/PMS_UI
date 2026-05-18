@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Package, Calendar, FileText, Clock, Archive, AlertTriangle } from "lucide-react";
-import DataTable, { type Column } from "@components/common/Table/Table";
-import Modal from "@components/common/Modal/Modal";
-import Button from "@components/common/Button/Button";
+import DataTable, { type Column } from "@shared/ui/Table/Table";
+import Modal from "@shared/ui/Modal/Modal";
+import Button from "@shared/ui/Button/Button";
 import InventoryStockDataGrid from "@inventory/components/InventoryStockDataGrid";
 import { useInventoryProducts } from "@inventory/hooks/useInventoryProducts";
 import { useRestockRequests } from "@inventory/hooks/useRestockRequests";

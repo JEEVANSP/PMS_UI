@@ -55,7 +55,7 @@ export function usePrescriptionHistoryData(options?: Options) {
       return;
     }
 
-    if (selected?.prescription.id !== expandedRow.id) {
+    if (selected?.id !== expandedRow.id) {
       dispatch(
         fetchPrescriptionDetails({
           id: expandedRow.id,
@@ -63,7 +63,7 @@ export function usePrescriptionHistoryData(options?: Options) {
         })
       );
     }
-  }, [dispatch, expandedRow, selected?.prescription.id]);
+  }, [dispatch, expandedRow, selected?.id]);
 
   const fetchPatient = useCallback(async (patientId: string) => {
     if (patientCache[patientId]) {
@@ -95,8 +95,8 @@ export function usePrescriptionHistoryData(options?: Options) {
   }, [expandedRow?.patientId, fetchPatient]);
 
   const expandedDetails: PrescriptionDetails | null =
-    expandedRow && selected?.prescription.id === expandedRow.id
-      ? selected.prescription
+    expandedRow && selected?.id === expandedRow.id
+      ? selected
       : null;
 
   const expandedPatient: PatientDetails | null =

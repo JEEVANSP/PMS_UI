@@ -5,8 +5,8 @@ import {
   createPrescription as createPrescriptionApi,
   getAllPrescriptions,
   getPrescriptionById,
-  reviewPrescription as reviewPrescriptionApi,
 } from "@prescription/api";
+import { reviewPrescription as reviewPrescriptionApi } from "@validation/api";
 import type {
   CreatePrescriptionRequestDto,
   PrescriptionHistoryQueryParams,
@@ -24,26 +24,7 @@ import type {
 
 type RequestStatus = "idle" | "loading" | "succeeded" | "failed";
 
-type SelectedPrescription = {
-  prescription: PrescriptionDetails;
-  etag: string;
-};
-
-type ReviewConflictError = {
-  type: "conflict";
-  message: string;
-  latest: SelectedPrescription;
-};
-
-type RejectableError = string | ReviewConflictError;
-
-function getStatusCode(error: unknown): number | undefined {
-  if (typeof error === "object" && error !== null) {
-    const obj = error as { response?: { status?: number } };
-    return obj.response?.status;
-  }
-  return undefined;
-}
+type SelectedPrescription = PrescriptionDetails;
 
 export const createPrescription = createAsyncThunk<
   SelectedPrescription,
@@ -52,10 +33,7 @@ export const createPrescription = createAsyncThunk<
 >("prescriptions/create", async (payload, { rejectWithValue }) => {
   try {
     const res = await createPrescriptionApi(payload);
-    return {
-      prescription: mapDetailsDto(res.data),
-      etag: res.etag ?? "",
-    };
+    return mapDetailsDto(res.data);
   } catch (error) {
     return rejectWithValue(extractApiError(error));
   }
@@ -68,10 +46,7 @@ export const fetchPrescriptionDetails = createAsyncThunk<
 >("prescriptions/details", async ({ id, patientId }, { rejectWithValue }) => {
   try {
     const res = await getPrescriptionById(id, patientId);
-    return {
-      prescription: mapDetailsDto(res.data),
-      etag: res.etag ?? "",
-    };
+    return mapDetailsDto(res.data);
   } catch (error) {
     return rejectWithValue(extractApiError(error));
   }
@@ -107,76 +82,58 @@ export const fetchAllPrescriptions = createAsyncThunk<
 });
 
 export const cancelPrescription = createAsyncThunk<
-  { id: string; etag?: string },
-  { id: string; patientId: string; reason?: string },
-  { state: { prescriptions: PrescriptionState }; rejectValue: string }
->("prescriptions/cancel", async ({ id, patientId, reason }, thunkApi) => {
-  const { getState, rejectWithValue } = thunkApi;
-
+  { id: string },
+  { id: string; reason?: string; etag: string },
+  { rejectValue: string }
+>("prescriptions/cancel", async ({ id, reason, etag }, { rejectWithValue }) => {
   try {
-    const selected = getState().prescriptions.selected;
-    let etag = selected?.prescription.id === id ? selected.etag : "";
-
-    if (!etag) {
-      const latest = await getPrescriptionById(id, patientId);
-      etag = latest.etag ?? "";
-    }
-
-    if (!etag) {
+    const effectiveEtag = etag.trim();
+    if (!effectiveEtag) {
       throw new Error("Missing ETag");
     }
 
-    const nextEtag = await cancelPrescriptionApi(id, reason, etag);
-    return { id, etag: nextEtag };
+    await cancelPrescriptionApi(id, reason, effectiveEtag);
+    return { id };
   } catch (error) {
     return rejectWithValue(extractApiError(error));
   }
 });
 
 export const reviewPrescription = createAsyncThunk<
-  SelectedPrescription,
+  PrescriptionDetails,
   {
     id: string;
     patientId: string;
     reviews: PrescriptionLineReviewDraft[];
     etag: string;
   },
-  { rejectValue: RejectableError }
->("prescriptions/review", async ({ id, patientId, reviews, etag }, thunkApi) => {
-  const { rejectWithValue } = thunkApi;
+  { rejectValue: string }
+>(
+  "prescriptions/review",
+  async ({ id, patientId, reviews, etag }, { rejectWithValue }) => {
+    try {
+      const payload = mapReviewToDto(reviews);
+      console.log("Review thunk etag", etag);
 
-  try {
-    const payload = mapReviewToDto(reviews);
-    const nextEtag = await reviewPrescriptionApi(id, patientId, payload, etag);
-    const latest = await getPrescriptionById(id, patientId);
-    return {
-      prescription: mapDetailsDto(latest.data),
-      etag: nextEtag ?? latest.etag ?? etag,
-    };
-  } catch (error) {
-    if (getStatusCode(error) === 412) {
-      try {
-        const latest = await getPrescriptionById(id, patientId);
-        return rejectWithValue({
-          type: "conflict",
-          message: "Prescription updated by another user.",
-          latest: {
-            prescription: mapDetailsDto(latest.data),
-            etag: latest.etag ?? etag,
-          },
-        });
-      } catch {
-        return rejectWithValue("Prescription updated by another user.");
-      }
+      await reviewPrescriptionApi(
+        id,
+        patientId,
+        payload,
+        etag
+      );
+
+      const latest = await getPrescriptionById(id, patientId);
+
+      return mapDetailsDto(latest.data);
+    } catch (error) {
+      return rejectWithValue(extractApiError(error));
     }
-
-    return rejectWithValue(extractApiError(error));
   }
-});
+);
 
 export interface PrescriptionState {
   items: PrescriptionSummary[];
-  selected?: SelectedPrescription;
+  selected?: PrescriptionDetails;
   continuationToken?: string | null;
   pageNumber: number;
   pageSize: number;
@@ -265,7 +222,7 @@ const slice = createSlice({
       const id = action.payload.id;
       state.items = state.items.filter((item) => item.id !== id);
 
-      if (state.selected?.prescription.id === id) {
+      if (state.selected?.id === id) {
         state.selected = undefined;
       }
     });
@@ -282,17 +239,7 @@ const slice = createSlice({
       .addCase(reviewPrescription.rejected, (state, action) => {
         state.status = "failed";
 
-        if (action.payload && typeof action.payload === "object" && "type" in action.payload) {
-          const conflict = action.payload as ReviewConflictError;
-          state.selected = conflict.latest;
-          state.error = conflict.message;
-          return;
-        }
-
-        state.error =
-          (typeof action.payload === "string" ? action.payload : undefined) ??
-          action.error.message ??
-          "Unknown error";
+        state.error = action.payload ?? action.error.message ?? "Unknown error";
       });
   },
 });

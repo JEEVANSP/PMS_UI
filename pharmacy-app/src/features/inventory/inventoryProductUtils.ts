@@ -1,5 +1,5 @@
 import type { InventoryLotDto, InventoryProductDto, InventoryProductsQueryParams } from "@api/inventory";
-import type { ServerTableQuery } from "@components/common/Table/Table";
+import type { ServerTableQuery } from "@shared/ui/Table/Table";
 import type { InventoryItem, InventoryStatus, RestockProduct } from "@inventory/types/inventory.types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;

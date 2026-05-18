@@ -1,3 +1,4 @@
+//usePrescriptionDetails 
 import { useCallback, useEffect, useState } from "react";
 import { getPrescriptionById } from "@prescription/api";
 import { mapDetailsDto } from "@prescription/domain/mapper";
@@ -5,6 +6,7 @@ import type { PrescriptionDetails } from "@prescription/domain/model";
 
 type Result = {
   data: PrescriptionDetails | null;
+  Etag: string;
   etag: string;
   loading: boolean;
   error: string | null;
@@ -24,7 +26,7 @@ function getErrorMessage(err: unknown): string {
 
 export function usePrescriptionDetails(rxId: string, patientId: string): Result {
   const [data, setData] = useState<PrescriptionDetails | null>(null);
-  const [etag, setEtag] = useState("");
+  const [Etag, setEtag] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,12 +44,14 @@ export function usePrescriptionDetails(rxId: string, patientId: string): Result 
 
     try {
       const response = await getPrescriptionById(rxId, patientId);
+      const responseEtag = response.Etag ?? response.etag ?? "";
+      console.log("Prescription details Etag", responseEtag);
       setData(mapDetailsDto(response.data));
-      setEtag(response.etag ?? "");
+      setEtag(responseEtag);
     } catch (err) {
       setError(getErrorMessage(err));
-      setData(null);
-      setEtag("");
+      // Preserve last successful snapshot.
+      // Do NOT wipe concurrency token on transient failures.
     } finally {
       setLoading(false);
     }
@@ -69,5 +73,5 @@ export function usePrescriptionDetails(rxId: string, patientId: string): Result 
     };
   }, [run]);
 
-  return { data, etag, loading, error, refetch: run };
+  return { data, Etag, etag: Etag, loading, error, refetch: run };
 }

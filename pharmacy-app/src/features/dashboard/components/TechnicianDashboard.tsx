@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { ClipboardList, Package, CheckCircle, AlertTriangle, Activity, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import DataTable, { type Column } from "@components/common/Table/Table";
-import Button from "@components/common/Button/Button";
-import Badge from "@components/common/Badge/Badge";
+import DataTable, { type Column } from "@shared/ui/Table/Table";
+import Button from "@shared/ui/Button/Button";
+import Badge from "@shared/ui/Badge/Badge";
 import PackingListModal from "@dispense/components/PackingListModal";
 import { useDispenseQueue } from "@dispense/hooks/useTechnicianDispenseQueue";
 import { ROUTES } from "@constants/routes";

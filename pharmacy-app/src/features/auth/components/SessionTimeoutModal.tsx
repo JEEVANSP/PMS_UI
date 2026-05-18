@@ -1,4 +1,4 @@
-import Modal from "@components/common/Modal/Modal";
+import Modal from "@shared/ui/Modal/Modal";
 
 type Props = {
   open: boolean;
@@ -50,3 +50,4 @@ export default function SessionTimeoutModal({
     </Modal>
   );
 }
+

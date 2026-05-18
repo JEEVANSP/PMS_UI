@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { useToast } from "@components/common/Toast/useToast";
+import { useToast } from "@shared/ui/toast";
 
 import { createPrescription } from "@prescription/api";
 import { getPatientById } from "@api/patient";
@@ -169,3 +169,4 @@ export function usePrescriptionEntry() {
     reset,
   };
 }
+

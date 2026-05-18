@@ -2,7 +2,7 @@ import axios, { AxiosHeaders } from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 import { store } from "@app/store";
 import { logout, refreshAccess } from "@auth/slices";
-import { toast } from "@components/common/Toast/toastService";
+import { toast } from "@shared/ui/toast";
 import { logger } from "@core/logger/logger";
 import { ENV } from "@core/config/env";
 
@@ -78,3 +78,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+

@@ -3,13 +3,13 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CheckCircle2, ChevronLeft, XCircle } from "lucide-react";
 
 import { ROUTES } from "../../constants/routes";
-import { useToast } from "@components/common/Toast/useToast";
+import { useToast } from "@shared/ui/toast";
 import { usePrescriptionDetails } from "@validation/hooks/usePrescriptionDetails";
 import { usePrescriptionReview } from "@validation/hooks/usePrescriptionReview";
 import { useValidationUiState } from "./hooks/useValidationUiState";
 import { formatDate } from "@shared/utils/formatDate";
 import { extractApiError } from "@core/errors/httpError";
-import { getValidationResults } from "@api/validation.api";
+import { getValidationResults } from "@validation/api/validation.api";
 import { mapValidationResultDto } from "@validation/domain/mapper";
 import type { LineValidation } from "@validation/domain/model";
 import type { LineDecision } from "./types/validation.types";
@@ -33,11 +33,8 @@ export default function PrescriptionValidationDetailsPage() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const { data, etag, loading, error, refetch } = usePrescriptionDetails(rxId, patientId);
-  const { submitting, submitReview, latestEtag, latestSnapshot } = usePrescriptionReview(
-    rxId,
-    patientId
-  );
+  const { data, Etag, loading, error, refetch } = usePrescriptionDetails(rxId, patientId);
+  const { submitting, submitReview } = usePrescriptionReview();
 
   const { ui, actions } = useValidationUiState();
   const [validationLoading, setValidationLoading] = useState(false);
@@ -52,12 +49,6 @@ export default function PrescriptionValidationDetailsPage() {
     }
     actions.init(data);
   }, [actions, data, ui.data?.id]);
-
-  useEffect(() => {
-    if (latestSnapshot && latestSnapshot.id === rxId) {
-      actions.init(latestSnapshot);
-    }
-  }, [actions, latestSnapshot, rxId]);
 
   const viewData = ui.data ?? data;
 
@@ -184,14 +175,6 @@ export default function PrescriptionValidationDetailsPage() {
     navigate(ROUTES.PHARMACIST.VALIDATION, { state: { refresh: true } });
   }, [navigate]);
 
-  const resolveReviewEtag = useCallback((): string => {
-    const activeEtag = (latestEtag ?? etag).trim();
-    if (!activeEtag) {
-      throw new Error("Missing ETag for review. Please refresh.");
-    }
-    return activeEtag;
-  }, [etag, latestEtag]);
-
   const submitCurrentReview = useCallback(async () => {
     if (!viewData) {
       return;
@@ -210,13 +193,12 @@ export default function PrescriptionValidationDetailsPage() {
       return;
     }
 
-    let effectiveEtag = "";
-    try {
-      effectiveEtag = resolveReviewEtag();
-    } catch (error) {
-      toast.error("Conflict", extractApiError(error));
-      return;
-    }
+    const effectiveEtag = Etag.trim();
+
+    console.log("Submit review Etag", {
+      localEtag: Etag,
+      resolved: effectiveEtag,
+    });
 
     const reviews = viewData.medicines.map((line) => ({
       prescriptionLineId: line.lineId,
@@ -227,7 +209,12 @@ export default function PrescriptionValidationDetailsPage() {
           : null,
     }));
 
-    const result = await submitReview(reviews, effectiveEtag);
+    const result = await submitReview(
+      rxId,
+      patientId,
+      reviews,
+      effectiveEtag
+    );
     if (!result.ok) {
       if (result.message.toLowerCase().includes("conflict")) {
         toast.error(
@@ -245,9 +232,11 @@ export default function PrescriptionValidationDetailsPage() {
     toast.success("Success", "Prescription review submitted successfully.");
     navigate(ROUTES.PHARMACIST.VALIDATION, { state: { refresh: true } });
   }, [
+    Etag,
     navigate,
+    patientId,
     refetch,
-    resolveReviewEtag,
+    rxId,
     submitReview,
     toast,
     getLineDecision,
@@ -275,13 +264,12 @@ export default function PrescriptionValidationDetailsPage() {
       return;
     }
 
-    let effectiveEtag = "";
-    try {
-      effectiveEtag = resolveReviewEtag();
-    } catch (error) {
-      toast.error("Conflict", extractApiError(error));
-      return;
-    }
+    const effectiveEtag = Etag.trim();
+
+    console.log("Reject prescription Etag", {
+      localEtag: Etag,
+      resolved: effectiveEtag,
+    });
 
     actions.rejectAll(reason);
     const reviews = viewData.medicines.map((line) => ({
@@ -290,7 +278,12 @@ export default function PrescriptionValidationDetailsPage() {
       notes: reason,
     }));
 
-    const result = await submitReview(reviews, effectiveEtag);
+    const result = await submitReview(
+      rxId,
+      patientId,
+      reviews,
+      effectiveEtag
+    );
     if (!result.ok) {
       toast.error("Failed", result.message);
       await refetch();
@@ -301,15 +294,17 @@ export default function PrescriptionValidationDetailsPage() {
     navigate(ROUTES.PHARMACIST.VALIDATION, { state: { refresh: true } });
   }, [
     actions,
+    Etag,
     navigate,
+    patientId,
     refetch,
-    resolveReviewEtag,
+    rxId,
     submitReview,
     toast,
     hasLineReviewStarted,
     isSingleMedicinePrescription,
     ui.reasons._ALL_,
-    viewData
+    viewData,
   ]);
 
   if (loading) {
@@ -473,3 +468,4 @@ function KV({ label, value }: { label: string; value: React.ReactNode }) {
     </div>
   );
 }
+

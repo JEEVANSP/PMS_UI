@@ -4,7 +4,7 @@ import { XCircle } from "lucide-react";
 import type { AllergyAlert } from "../types/validation.types";
 import { pillToneBySeverity } from "../utils/prescriptionValidationUtils";
 
-import Modal from "@components/common/Modal/Modal";
+import Modal from "@shared/ui/Modal/Modal";
 import { Pill } from "@components/common/Pill/Pill";
 
 function ModalShell({
@@ -206,3 +206,4 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
     </div>
   );
 }
+

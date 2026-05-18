@@ -1,7 +1,7 @@
 import type {
   ValidationLineResultDto,
   ValidationResultDto,
-} from "@api/validation.dto";
+} from "@validation/api/validation.dto";
 import type { LineValidation, ValidationResult, ValidationSeverity } from "./model";
 
 function getAllergy(line: ValidationLineResultDto) {

@@ -8,8 +8,8 @@ import {
 
 } from "lucide-react";
 
-import DataTable from "@components/common/Table/Table";
-import type { Column } from "@components/common/Table/Table";
+import DataTable from "@shared/ui/Table/Table";
+import type { Column } from "@shared/ui/Table/Table";
 import TrendIndicator from "@components/common/TrendIndicator/TrendIndicator";
 
 import { formatDateTime, statusStyle } from "@prescription/utils/prescriptionHistoryUtils";
@@ -285,3 +285,4 @@ function Kpi({
     </div>
   );
 }
+

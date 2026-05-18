@@ -7,7 +7,7 @@ import type { PrescriptionSummaryDto } from "@prescription/types/prescription.ty
 /* --------------------------- TOAST MOCK ----------------------------- */
 /* ------------------------------------------------------------------ */
 
-vi.mock("@components/common/Toast/useToast", () => ({
+vi.mock("@shared/ui/toast", () => ({
   useToast: () => ({
     success: vi.fn(),
     error: vi.fn(),
@@ -285,3 +285,4 @@ describe("PrescriptionValidationQueuePage", () => {
     ).toBeInTheDocument();
   });
 });
+

@@ -2,9 +2,9 @@ import { useEffect, forwardRef } from "react";
 import { X } from "lucide-react";
 import clsx from "clsx";
 
-import Input from "@components/common/Input/Input";
+import Input from "@shared/ui/Input/Input";
 import Dropdown from "@components/common/Dropdown/Dropdown";
-import AppPhoneInput from "@components/common/PhoneInput/PhoneInput";
+import AppPhoneInput from "@shared/form/PhoneInput";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "@styles/datepicker.css";
@@ -152,7 +152,7 @@ export default function PatientFormModal({
               <Input
                 label={<RequiredLabel text="Full Name" />}
                 value={form.fullName}
-                onChange={(value) => updateField("fullName", value)}
+                onChange={(event) => updateField("fullName", event.target.value)}
                 error={errors.fullName}
               />
               {!errors.fullName && warnings.fullName && (
@@ -229,7 +229,7 @@ export default function PatientFormModal({
             <Input
               label="Email"
               value={form.email}
-              onChange={(value) => updateField("email", value)}
+              onChange={(event) => updateField("email", event.target.value)}
               error={errors.email}
             />
             {!errors.email && warnings.email && (
@@ -241,7 +241,7 @@ export default function PatientFormModal({
             <Input
               label="Address"
               value={form.address}
-              onChange={(value) => updateField("address", value)}
+              onChange={(event) => updateField("address", event.target.value)}
               error={errors.address}
             />
             {!errors.address && warnings.address && (
@@ -262,12 +262,16 @@ export default function PatientFormModal({
               <Input
                 label="Insurance Provider"
                 value={form.insuranceProvider}
-                onChange={(value) => updateField("insuranceProvider", value)}
+                onChange={(event) =>
+                  updateField("insuranceProvider", event.target.value)
+                }
               />
               <Input
                 label="Policy ID"
                 value={form.insurancePolicyId}
-                onChange={(value) => updateField("insurancePolicyId", value)}
+                onChange={(event) =>
+                  updateField("insurancePolicyId", event.target.value)
+                }
               />
             </div>
           </div>
@@ -313,3 +317,4 @@ export default function PatientFormModal({
     </div>
   );
 }
+

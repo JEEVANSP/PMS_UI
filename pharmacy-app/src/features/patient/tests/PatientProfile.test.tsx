@@ -22,7 +22,7 @@ vi.mock('@api/patient', () => {
 });
 
 // Toast mock (returns the same object instance on each call)
-vi.mock('@components/common/Toast/useToast', () => {
+vi.mock('@shared/ui/toast', () => {
   const toast = { error: vi.fn(), success: vi.fn(), info: vi.fn() };
   return { useToast: () => toast };
 });
@@ -93,7 +93,7 @@ vi.mock('@patient/hooks/usePatientPrescriptions', () => ({ usePatientPrescriptio
 // --------------------------- Imports after mocks ---------------------------
 
 import PatientProfiles from '../components/PatientProfile';
-import { useToast } from '@components/common/Toast/useToast';
+import { useToast } from '@shared/ui/toast';
 import * as patientApi from '@api/patient';
 import { usePatientDirectory } from '@patient/hooks/usePatientDirectory';
 import { usePatientDetails } from '@patient/hooks/usePatientDetails';
@@ -376,3 +376,4 @@ describe('PatientProfiles', () => {
     expect(rx.reset).toHaveBeenCalled();
   });
 });
+

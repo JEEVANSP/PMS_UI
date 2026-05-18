@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from "react";
 import { useAppDispatch } from "@app/store";
 
-import DataTable from "@components/common/Table/Table";
-import type { Column, ServerTableQuery } from "@components/common/Table/Table";
+import DataTable from "@shared/ui/Table/Table";
+import type { Column, ServerTableQuery } from "@shared/ui/Table/Table";
 import { fetchAllPrescriptions } from "@prescription/slices";
 
 import type { PrescriptionSummary } from "@prescription/domain/model";
@@ -177,3 +177,4 @@ export default function PrescriptionHistory() {
     </div>
   );
 }
+
