@@ -1,8 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { Mock } from "vitest";
-import { Provider } from "react-redux";
-import { configureStore } from "@reduxjs/toolkit";
 import type { PrescriptionSummaryDto } from "@prescription/types/prescription.types";
 import PharmacistDashboard from "../../dashboard/components/PharmacistDashboard";
 
@@ -17,16 +15,6 @@ const { mockUseDashboardData } = vi.hoisted(() => ({
 // Mock only the hook (NOT DataTable)
 vi.mock("@dashboard/hooks/useDashboardData", () => ({
   useDashboardData: mockUseDashboardData,
-}));
-
-// Mock thunk dispatch
-const mockFetch = vi.fn();
-
-vi.mock("@prescription/slices", () => ({
-  fetchAllPrescriptions: (payload: unknown) => {
-    mockFetch(payload);
-    return { type: "mock/fetch" };
-  },
 }));
 
 /* ============================================
@@ -62,22 +50,13 @@ function createMockPrescription(
 ============================================ */
 
 describe("PharmacistDashboard - Maximum Coverage", () => {
-  const mockStore = configureStore({
-    reducer: () => ({}),
-  });
-
-  const renderComponent = () =>
-    render(
-      <Provider store={mockStore}>
-        <PharmacistDashboard />
-      </Provider>
-    );
+  const renderComponent = () => render(<PharmacistDashboard />);
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("dispatches fetchAllPrescriptions on mount", () => {
+  it("renders the dashboard heading", () => {
     (mockUseDashboardData as unknown as Mock).mockReturnValue({
       prescriptions: [],
       requestStatus: "idle",
@@ -85,12 +64,7 @@ describe("PharmacistDashboard - Maximum Coverage", () => {
 
     renderComponent();
 
-    expect(mockFetch).toHaveBeenCalledWith({
-      pageNumber: 1,
-      pageSize: 10,
-      sortBy: "createdAt",
-      sortDirection: "desc",
-    });
+    expect(screen.getByRole("heading", { name: "Pharmacist Dashboard" })).toBeInTheDocument();
   });
 
   it("shows loading state", () => {

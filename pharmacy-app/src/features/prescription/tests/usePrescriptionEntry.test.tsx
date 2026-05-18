@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 
 import { usePrescriptionEntry } from "../hooks/usePrescriptionEntry";
@@ -12,7 +12,7 @@ import type {
   CreatePrescriptionRequest,
   PrescriptionDetailsDto,
 } from "@prescription/types/prescription.types";
-import type { ValidationResult } from "@prescription/utils/validation";
+import type { ValidationResult } from "@prescription/utils/prescriptionDraftValidation";
 
 /* -------------------- MOCKS -------------------- */
 
@@ -47,7 +47,7 @@ vi.mock("@prescription/api", () => {
   };
 });
 
-vi.mock("@prescription/utils/validation", () => {
+vi.mock("@prescription/utils/prescriptionDraftValidation", () => {
   const validatePatientStep = vi.fn(() => ({ valid: false, errors: ["Invalid patient"] }));
   const validateDoctorStep = vi.fn(() => ({ valid: false, errors: ["Invalid doctor"] }));
   const validateMedicationStep = vi.fn(() => ({ valid: false, errors: ["Invalid meds"] }));
@@ -72,7 +72,7 @@ import {
   validateDoctorStep,
   validateMedicationStep,
   validatePrescriptionDraft,
-} from "@prescription/utils/validation";
+} from "@prescription/utils/prescriptionDraftValidation";
 
 /* -------------------- HELPERS -------------------- */
 
@@ -141,7 +141,6 @@ const createdPrescriptionResponse = {
 /* -------------------- TESTS -------------------- */
 
 describe("usePrescriptionEntry", () => {
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
   const mockedGetPatientById = vi.mocked(getPatientById);
   const mockedCreatePrescription = vi.mocked(createPrescription);
 
@@ -156,13 +155,6 @@ describe("usePrescriptionEntry", () => {
     vi.mocked(validateDoctorStep).mockReturnValue(invalidDoctor);
     vi.mocked(validateMedicationStep).mockReturnValue(invalidMeds);
     vi.mocked(validatePrescriptionDraft).mockReturnValue(invalidDraft);
-
-    // Silence console.error by default (we'll restore per-test if needed)
-    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    consoleErrorSpy?.mockRestore();
   });
 
   it("returns initial state and constants", () => {

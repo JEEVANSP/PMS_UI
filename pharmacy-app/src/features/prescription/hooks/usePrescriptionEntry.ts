@@ -13,7 +13,7 @@ import {
   validateDoctorStep,
   validateMedicationStep,
   validatePrescriptionDraft,
-} from "@prescription/utils/validation";
+} from "@prescription/utils/prescriptionDraftValidation";
 
 /* ---------------- INITIAL STATE ---------------- */
 
@@ -133,8 +133,6 @@ export function usePrescriptionEntry() {
 
       reset();
     } catch (error) {
-      console.error("Create prescription failed:", error);
-
       toast.error(
         "Failed to create prescription",
         getErrorMessage(error)

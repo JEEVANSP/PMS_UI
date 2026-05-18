@@ -1,13 +1,19 @@
-import { useCallback, useMemo } from "react";
-import { useAppDispatch } from "@app/store";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import DataTable from "@shared/ui/Table/Table";
 import type { Column, ServerTableQuery } from "@shared/ui/Table/Table";
-import { fetchAllPrescriptions } from "@prescription/slices";
 
-import type { PrescriptionSummary } from "@prescription/domain/model";
+import { getPatientById } from "@api/patient";
+import { getPrescriptionById } from "@prescription/api";
+import { mapDetailsDto } from "@prescription/domain/mapper";
+import type {
+  PrescriptionDetails,
+  PrescriptionSummary,
+} from "@prescription/domain/model";
+import type { PrescriptionHistoryQueryParams } from "@prescription/api";
+import type { PatientDetails } from "@prescription/types/models";
 
-import { usePrescriptionHistoryData } from "@prescription/hooks/usePrescriptionHistoryData";
+import { usePrescriptionHistory } from "@prescription/hooks/usePrescriptionHistory";
 import PrescriptionExpandedDetails from "@prescription/components/PrescriptionExpandedDetails";
 import {
   buildHistoryQueryParams,
@@ -15,22 +21,124 @@ import {
   statusStyle,
 } from "@prescription/utils/prescriptionHistoryUtils";
 
-export default function PrescriptionHistory() {
-  const dispatch = useAppDispatch();
+function usePrescriptionHistoryExpansion(rows: PrescriptionSummary[]) {
+  const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+  const [detailsCache, setDetailsCache] = useState<Record<string, PrescriptionDetails>>({});
+  const [patientCache, setPatientCache] = useState<Record<string, PatientDetails>>({});
+  const [patientLoading, setPatientLoading] = useState<Record<string, boolean>>({});
+  const detailsInFlightRef = useRef<Record<string, boolean>>({});
+  const patientInFlightRef = useRef<Record<string, boolean>>({});
 
-  const {
-    prescriptions,
-    requestStatus,
-    totalCount,
-    pageNumber,
-    pageSize,
+  const expandedRow = useMemo(() => {
+    if (!expandedRowId) {
+      return null;
+    }
+    return rows.find((row) => row.id === expandedRowId) ?? null;
+  }, [expandedRowId, rows]);
+
+  const fetchDetails = useCallback(async (row: PrescriptionSummary) => {
+    const cacheKey = `${row.id}:${row.patientId}`;
+
+    if (detailsCache[cacheKey] || detailsInFlightRef.current[cacheKey]) {
+      return;
+    }
+
+    detailsInFlightRef.current[cacheKey] = true;
+
+    try {
+      const response = await getPrescriptionById(row.id, row.patientId);
+      setDetailsCache((prev) => ({
+        ...prev,
+        [cacheKey]: mapDetailsDto(response.data),
+      }));
+    } finally {
+      detailsInFlightRef.current[cacheKey] = false;
+    }
+  }, [detailsCache]);
+
+  const fetchPatient = useCallback(async (patientId: string) => {
+    if (patientCache[patientId] || patientInFlightRef.current[patientId]) {
+      return;
+    }
+
+    patientInFlightRef.current[patientId] = true;
+    setPatientLoading((prev) => ({ ...prev, [patientId]: true }));
+
+    try {
+      const data = await getPatientById(patientId);
+      if (data) {
+        setPatientCache((prev) => ({ ...prev, [patientId]: data }));
+      }
+    } finally {
+      patientInFlightRef.current[patientId] = false;
+      setPatientLoading((prev) => ({ ...prev, [patientId]: false }));
+    }
+  }, [patientCache]);
+
+  useEffect(() => {
+    if (!expandedRow) {
+      return;
+    }
+
+    void fetchDetails(expandedRow);
+    void fetchPatient(expandedRow.patientId);
+  }, [expandedRow, fetchDetails, fetchPatient]);
+
+  const expandedDetailsKey = expandedRow
+    ? `${expandedRow.id}:${expandedRow.patientId}`
+    : null;
+
+  const expandedDetails =
+    expandedDetailsKey ? detailsCache[expandedDetailsKey] ?? null : null;
+
+  const expandedPatient =
+    expandedRow ? patientCache[expandedRow.patientId] ?? null : null;
+
+  const expandedPatientLoading =
+    expandedRow ? !!patientLoading[expandedRow.patientId] : false;
+
+  const toggleRow = useCallback((rowId: string) => {
+    setExpandedRowId((prev) => (prev === rowId ? null : rowId));
+  }, []);
+
+  const isRowExpanded = useCallback(
+    (row: PrescriptionSummary) => row.id === expandedRowId,
+    [expandedRowId],
+  );
+
+  return {
     expandedRowId,
     expandedDetails,
     expandedPatient,
     expandedPatientLoading,
     toggleRow,
     isRowExpanded,
-  } = usePrescriptionHistoryData({ pageSize: 10, skipInitialFetch: true });
+  };
+}
+
+export default function PrescriptionHistory() {
+  const [query, setQuery] = useState<PrescriptionHistoryQueryParams>({
+    pageNumber: 1,
+    pageSize: 10,
+  });
+
+  const {
+    items: prescriptions,
+    loading,
+    error,
+    totalCount,
+    pageNumber,
+    pageSize,
+  } = usePrescriptionHistory(query);
+
+  const {
+    expandedRowId,
+    expandedDetails,
+    expandedPatient,
+    expandedPatientLoading,
+    toggleRow,
+    isRowExpanded,
+  } = usePrescriptionHistoryExpansion(prescriptions);
 
   const columns: Column<PrescriptionSummary>[] = useMemo(
     () => [
@@ -139,9 +247,9 @@ export default function PrescriptionHistory() {
         columnFilters: tableQuery.columnFilters,
       });
 
-      dispatch(fetchAllPrescriptions(apiQuery));
+      setQuery(apiQuery);
     },
-    [dispatch]
+    []
   );
 
   return (
@@ -166,8 +274,9 @@ export default function PrescriptionHistory() {
         isRowExpanded={isRowExpanded}
         onRowClick={handleRowClick}
         serverSide
-        loading={requestStatus === "loading"}
+        loading={loading}
         totalItems={totalCount}
+        emptyMessage={error ?? "No data available"}
         initialServerQuery={{
           pageNumber,
           pageSize,

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   validateMedicationStep,
   validatePrescriptionDraft,
-} from "@prescription/utils/validation";
+} from "@prescription/utils/prescriptionDraftValidation";
 import type { PrescriptionDraft } from "@prescription/types/models";
 
 function buildDraft(

@@ -1,7 +1,6 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { authReducer } from "@auth/slices";
 import uiReducer from "./ui/uiSlice";
-import { prescriptionReducer } from "@prescription/slices";
 import storage from "redux-persist/lib/storage";
 import { persistReducer } from "redux-persist";
 
@@ -14,5 +13,4 @@ const persistedUi = persistReducer(uiPersistConfig, uiReducer);
 export const rootReducer = combineReducers({
   auth: persistedAuth,
   ui: persistedUi,
-  prescriptions: prescriptionReducer,
 });

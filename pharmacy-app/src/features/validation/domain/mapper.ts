@@ -2,7 +2,11 @@ import type {
   ValidationLineResultDto,
   ValidationResultDto,
 } from "@validation/api/validation.dto";
-import type { LineValidation, ValidationResult, ValidationSeverity } from "./model";
+import type {
+  LineValidation,
+  ValidationResult,
+  ValidationSeverity,
+} from "./model";
 
 function getAllergy(line: ValidationLineResultDto) {
   return line.validation?.drugAllergy ?? line.drugAllergy;

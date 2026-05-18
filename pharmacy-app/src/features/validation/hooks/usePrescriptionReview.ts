@@ -1,9 +1,7 @@
 import { useCallback, useState } from "react";
-import { useAppDispatch } from "@app/store";
 import { extractApiError } from "@core/errors/httpError";
-import {
-  reviewPrescription as reviewPrescriptionThunk,
-} from "@prescription/slices";
+import { reviewPrescription } from "@validation/api";
+import { mapReviewToDto } from "@prescription/domain/mapper";
 import type { PrescriptionLineReviewDraft } from "@prescription/domain/model";
 
 type SubmitResult =
@@ -11,7 +9,6 @@ type SubmitResult =
   | { ok: false; message: string };
 
 export function usePrescriptionReview() {
-  const dispatch = useAppDispatch();
   const [submitting, setSubmitting] = useState(false);
 
   const submitReview = useCallback(
@@ -24,33 +21,28 @@ export function usePrescriptionReview() {
       setSubmitting(true);
 
       try {
-        const action = await dispatch(
-          reviewPrescriptionThunk({
-            id: rxId,
-            patientId,
-            reviews,
-            etag,
-          })
+        const payload = mapReviewToDto(reviews);
+
+        await reviewPrescription(
+          rxId,
+          patientId,
+          payload,
+          etag
         );
 
-        if (reviewPrescriptionThunk.fulfilled.match(action)) {
-          return { ok: true };
-        }
-
+        return { ok: true };
+      } catch (error) {
         return {
           ok: false,
           message:
-            (typeof action.payload === "string"
-              ? action.payload
-              : undefined) ||
-            extractApiError(action.error) ||
+            extractApiError(error) ||
             "Request failed",
         };
       } finally {
         setSubmitting(false);
       }
     },
-    [dispatch]
+    []
   );
 
   return {

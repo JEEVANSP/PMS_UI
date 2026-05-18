@@ -3,7 +3,10 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import PrescriptionValidationDetailsPage from "../PrescriptionValidationPage";
-import type { PrescriptionDetails, PrescriptionLineReviewDraft } from "@prescription/domain/model";
+import type {
+  PrescriptionDetails,
+  PrescriptionLineReviewDraft,
+} from "@prescription/domain/model";
 
 const mockNavigate = vi.fn();
 const mockSubmitReview = vi.fn<
@@ -19,6 +22,7 @@ const mockToast = {
   success: vi.fn(),
   error: vi.fn(),
 };
+const mockGetValidationResults = vi.fn();
 
 let uiState: {
   data: PrescriptionDetails | null;
@@ -125,8 +129,8 @@ vi.mock("@shared/ui/toast", () => ({
   useToast: () => mockToast,
 }));
 
-vi.mock("@validation/hooks/usePrescriptionDetails", () => ({
-  usePrescriptionDetails: () => ({
+vi.mock("@validation/hooks/useValidationPrescriptionDetails", () => ({
+  useValidationPrescriptionDetails: () => ({
     data: detailsData,
     etag: detailsEtag,
     loading: false,
@@ -149,8 +153,8 @@ vi.mock("../hooks/useValidationUiState", () => ({
   }),
 }));
 
-vi.mock("@api/validation.api", () => ({
-  getValidationResults: vi.fn().mockResolvedValue({ lines: [] }),
+vi.mock("@validation/api/validation.api", () => ({
+  getValidationResults: (...args: unknown[]) => mockGetValidationResults(...args),
 }));
 
 vi.mock("@validation/domain/mapper", () => ({
@@ -185,9 +189,17 @@ function renderPage() {
   );
 }
 
+async function waitForValidationLoad() {
+  await waitFor(() => {
+    expect(mockGetValidationResults).toHaveBeenCalled();
+  });
+}
+
 describe("PrescriptionValidationDetailsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSubmitReview.mockResolvedValue({ ok: true });
+    mockGetValidationResults.mockResolvedValue({ lines: [] });
     detailsData = baseData;
     detailsEtag = "etag-1";
     uiState = {
@@ -200,24 +212,26 @@ describe("PrescriptionValidationDetailsPage", () => {
     };
   });
 
-  it("disables submit review until every line has a decision", () => {
+  it("disables submit review until every line has a decision", async () => {
     uiState.decisions = { "line-1": "Rejected" };
     uiState.reasons = { "line-1": "Allergy risk" };
 
     renderPage();
+    await waitForValidationLoad();
 
     expect(screen.getByRole("button", { name: "Submit Review" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Reject Entire Prescription" })).toBeDisabled();
     expect(screen.getByRole("button", { name: /Refresh/ })).toBeInTheDocument();
   });
 
-  it("disables submit review when a rejected line is missing a reason", () => {
+  it("disables submit review when a rejected line is missing a reason", async () => {
     uiState.decisions = {
       "line-1": "Rejected",
       "line-2": "Approved",
     };
 
     renderPage();
+    await waitForValidationLoad();
 
     expect(screen.getByRole("button", { name: "Submit Review" })).toBeDisabled();
   });
@@ -235,6 +249,8 @@ describe("PrescriptionValidationDetailsPage", () => {
 
     await waitFor(() => {
       expect(mockSubmitReview).toHaveBeenCalledWith(
+        "RX123",
+        "P001",
         [
           {
             prescriptionLineId: "line-1",
@@ -282,7 +298,7 @@ describe("PrescriptionValidationDetailsPage", () => {
     });
   });
 
-  it("forces single-medicine rejection through Reject Entire Prescription instead of Submit Review", () => {
+  it("forces single-medicine rejection through Reject Entire Prescription instead of Submit Review", async () => {
     detailsData = {
       ...baseData,
       medicineCount: 1,
@@ -292,6 +308,7 @@ describe("PrescriptionValidationDetailsPage", () => {
     uiState.reasons = { "line-1": "Allergy risk" };
 
     renderPage();
+    await waitForValidationLoad();
 
     expect(screen.getByRole("button", { name: "Submit Review" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Reject Entire Prescription" })).not.toBeDisabled();

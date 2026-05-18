@@ -1,40 +1,20 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { UnknownAction } from "@reduxjs/toolkit";
 import { usePrescriptionReview } from "../hooks/usePrescriptionReview";
 import type { PrescriptionLineReviewDraft } from "@prescription/domain/model";
 
-type ReviewAction = UnknownAction & {
-  payload?: unknown;
-  error?: unknown;
-};
-
 const mocks = vi.hoisted(() => ({
-  dispatch: vi.fn(),
   reviewPrescription: vi.fn(),
+  extractApiError: vi.fn((_error: unknown) => "fallback error"),
 }));
 
-vi.mock("@app/store", () => ({
-  useAppDispatch: () => mocks.dispatch,
+vi.mock("@validation/api", () => ({
+  reviewPrescription: (...args: unknown[]) => mocks.reviewPrescription(...args),
 }));
-
-vi.mock("@prescription/slices", () => {
-  Object.assign(mocks.reviewPrescription, {
-    fulfilled: {
-      match: (action: ReviewAction) => action.type === "prescriptions/review/fulfilled",
-    },
-  });
-
-  return {
-    reviewPrescription: mocks.reviewPrescription,
-  };
-});
 
 vi.mock("@core/errors/httpError", () => ({
-  extractApiError: vi.fn(() => "fallback error"),
+  extractApiError: (error: unknown) => mocks.extractApiError(error),
 }));
-
-import { reviewPrescription } from "@prescription/slices";
 
 describe("usePrescriptionReview", () => {
   const reviews = [] as PrescriptionLineReviewDraft[];
@@ -49,11 +29,8 @@ describe("usePrescriptionReview", () => {
     expect(result.current.submitting).toBe(false);
   });
 
-  it("dispatches review thunk with explicit ids and etag", async () => {
-    mocks.dispatch.mockResolvedValue({
-      type: "prescriptions/review/fulfilled",
-      payload: { id: "RX-1" },
-    });
+  it("calls review API with explicit ids, mapped payload, and etag", async () => {
+    mocks.reviewPrescription.mockResolvedValueOnce(undefined);
 
     const { result } = renderHook(() => usePrescriptionReview());
     let response: Awaited<ReturnType<typeof result.current.submitReview>> | undefined;
@@ -62,21 +39,18 @@ describe("usePrescriptionReview", () => {
       response = await result.current.submitReview("RX-1", "PAT-1", reviews, "etag-1");
     });
 
-    expect(reviewPrescription).toHaveBeenCalledWith({
-      id: "RX-1",
-      patientId: "PAT-1",
-      reviews,
-      etag: "etag-1",
-    });
+    expect(mocks.reviewPrescription).toHaveBeenCalledWith(
+      "RX-1",
+      "PAT-1",
+      { reviews: [] },
+      "etag-1",
+    );
     expect(response).toEqual({ ok: true });
   });
 
-  it("returns string payload error", async () => {
-    mocks.dispatch.mockResolvedValue({
-      type: "prescriptions/review/rejected",
-      payload: "Something went wrong",
-      error: {},
-    });
+  it("returns extracted API error on failure", async () => {
+    const error = new Error("unexpected");
+    mocks.reviewPrescription.mockRejectedValueOnce(error);
 
     const { result } = renderHook(() => usePrescriptionReview());
     let response: Awaited<ReturnType<typeof result.current.submitReview>> | undefined;
@@ -85,41 +59,20 @@ describe("usePrescriptionReview", () => {
       response = await result.current.submitReview("RX-1", "PAT-1", reviews, "etag-1");
     });
 
-    expect(response).toEqual({
-      ok: false,
-      message: "Something went wrong",
-    });
-  });
-
-  it("falls back to extractApiError", async () => {
-    mocks.dispatch.mockResolvedValue({
-      type: "prescriptions/review/rejected",
-      payload: null,
-      error: {},
-    });
-
-    const { result } = renderHook(() => usePrescriptionReview());
-    let response: Awaited<ReturnType<typeof result.current.submitReview>> | undefined;
-
-    await act(async () => {
-      response = await result.current.submitReview("RX-1", "PAT-1", reviews, "etag-1");
-    });
-
+    expect(mocks.extractApiError).toHaveBeenCalledWith(error);
     expect(response).toEqual({
       ok: false,
       message: "fallback error",
     });
   });
 
-  it("resets submitting even if dispatch throws", async () => {
-    mocks.dispatch.mockRejectedValue(new Error("unexpected"));
+  it("resets submitting after API failure", async () => {
+    mocks.reviewPrescription.mockRejectedValueOnce(new Error("unexpected"));
 
     const { result } = renderHook(() => usePrescriptionReview());
 
     await act(async () => {
-      await expect(
-        result.current.submitReview("RX-1", "PAT-1", reviews, "etag-1")
-      ).rejects.toThrow("unexpected");
+      await result.current.submitReview("RX-1", "PAT-1", reviews, "etag-1");
     });
 
     expect(result.current.submitting).toBe(false);

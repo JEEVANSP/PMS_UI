@@ -17,8 +17,8 @@ import {
   getPrescriptionById,
   getPrescriptionsByPatient,
   getValidatedPrescriptions,
-  reviewPrescription,
 } from "@prescription/api";
+import { reviewPrescription } from "@validation/api";
 
 describe("prescription API", () => {
   const apiGet = api.get as unknown as ReturnType<typeof vi.fn>;
@@ -54,6 +54,7 @@ describe("prescription API", () => {
     });
     expect(result).toEqual({
       data: { id: "rx-1" },
+      Etag: "etag-1",
       etag: "etag-1",
     });
   });
@@ -71,6 +72,7 @@ describe("prescription API", () => {
     });
     expect(result).toEqual({
       data: { id: "rx-2" },
+      Etag: "etag-2",
       etag: "etag-2",
     });
   });
@@ -203,7 +205,7 @@ describe("prescription API", () => {
       },
       {
         params: { patientId: "p-1" },
-        headers: { "If-Match": "etag-1" },
+        headers: { "If-Match": "\"etag-1\"" },
       },
     );
     expect(result).toBe("etag-next");
@@ -219,7 +221,7 @@ describe("prescription API", () => {
     expect(apiPost).toHaveBeenCalledWith(
       "/api/prescriptions/rx-1/cancel",
       { reason: "Duplicate" },
-      { headers: { "If-Match": "etag-1" } },
+      { headers: { "If-Match": "\"etag-1\"" } },
     );
     expect(result).toBe("etag-2");
   });

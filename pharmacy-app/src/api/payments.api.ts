@@ -1,7 +1,7 @@
 // payments.api.ts — unified payments API (merged from payments.ts)
 import api from "@core/api/apiClient";
 import { ENDPOINTS } from "@core/api/endpoints";
-import { extractEtag } from "@prescription/api";
+import { extractEtag } from "@core/http/etag";
 import { logger } from "@core/logger/logger";
 
 /* ======================================================

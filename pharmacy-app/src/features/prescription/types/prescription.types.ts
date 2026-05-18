@@ -6,7 +6,6 @@ import type {
 
 export type {
   PrescriptionLine,
-  PrescriptionLineReviewDraft,
   PrescriptionStatus,
   PrescriptionSummary,
   ValidationSeverity,

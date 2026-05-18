@@ -74,6 +74,13 @@ export interface PrescriptionLineReview {
   overrideReason?: string | null;
 }
 
+export interface PrescriptionLineReviewDraft {
+  prescriptionLineId?: string;
+  lineId?: string;
+  status: "Approved" | "Rejected";
+  notes?: string | null;
+}
+
 export interface PrescriptionLine {
   lineId: string;
   prescriptionMedicineId?: string;
@@ -115,11 +122,4 @@ export interface PrescriptionDetails {
   status: PrescriptionStatus;
   medicineCount: number;
   medicines: PrescriptionLine[];
-}
-
-export interface PrescriptionLineReviewDraft {
-  prescriptionLineId?: string;
-  lineId?: string;
-  status: "Approved" | "Rejected";
-  notes?: string | null;
 }

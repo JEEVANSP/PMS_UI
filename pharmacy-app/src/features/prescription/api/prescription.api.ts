@@ -1,5 +1,6 @@
 import api from "@core/api/apiClient";
 import { ENDPOINTS } from "@core/api/endpoints";
+import { extractEtag, formatIfMatch } from "@core/http/etag";
 import { logger } from "@core/logger/logger";
 import type {
   ApiEntityResponse,
@@ -10,43 +11,6 @@ import type {
   PrescriptionListResponseDto,
   PrescriptionSummaryDto,
 } from "./prescription.dto";
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
-
-function normalizeEtag(value: unknown): string | undefined {
-  if (!isNonEmptyString(value)) return undefined;
-  const cleaned = value.trim().replace(/"/g, "");
-  return cleaned.length > 0 ? cleaned : undefined;
-}
-
-export function extractEtag(headers: unknown): string | undefined {
-  if (!headers) return undefined;
-
-  const getter = headers as { get?: (name: string) => unknown };
-  if (typeof getter.get === "function") {
-    const viaGetter = normalizeEtag(
-      getter.get("Etag") ?? getter.get("ETag") ?? getter.get("etag"),
-    );
-    if (viaGetter) return viaGetter;
-  }
-
-  if (typeof headers === "object" && headers !== null) {
-    const record = headers as Record<string, unknown>;
-    return normalizeEtag(record.Etag ?? record.ETag ?? record.etag);
-  }
-
-  return undefined;
-}
-
-function requireEtag(etag: string): string {
-  if (!isNonEmptyString(etag)) throw new Error("Missing ETag");
-  const trimmed = etag.trim();
-  // ETag is stored without quotes (normalizeEtag strips them).
-  // If-Match requires a quoted entity-tag per HTTP spec.
-  return trimmed.startsWith('"') ? trimmed : `"${trimmed}"`;
-}
 
 function toSummaryDto(
   dto: PrescriptionDetailsDto | PrescriptionSummaryDto,
@@ -112,25 +76,25 @@ export async function getAllPrescriptions(
     pageSize: query.pageSize ?? 10,
   };
 
-  if (isNonEmptyString(query.prescriptionId)) {
+  if (typeof query.prescriptionId === "string" && query.prescriptionId.trim().length > 0) {
     params.prescriptionId = query.prescriptionId.trim();
   }
-  if (isNonEmptyString(query.patientId)) {
+  if (typeof query.patientId === "string" && query.patientId.trim().length > 0) {
     params.patientId = query.patientId.trim();
   }
-  if (isNonEmptyString(query.patientName)) {
+  if (typeof query.patientName === "string" && query.patientName.trim().length > 0) {
     params.patientName = query.patientName.trim();
   }
-  if (isNonEmptyString(query.prescriberName)) {
+  if (typeof query.prescriberName === "string" && query.prescriberName.trim().length > 0) {
     params.prescriberName = query.prescriberName.trim();
   }
-  if (isNonEmptyString(query.createdAt)) {
+  if (typeof query.createdAt === "string" && query.createdAt.trim().length > 0) {
     params.createdAt = query.createdAt.trim();
   }
-  if (isNonEmptyString(query.status)) {
+  if (typeof query.status === "string" && query.status.trim().length > 0) {
     params.status = query.status.trim();
   }
-  if (isNonEmptyString(query.sortBy)) {
+  if (typeof query.sortBy === "string" && query.sortBy.trim().length > 0) {
     params.sortBy = query.sortBy.trim();
   }
   if (query.sortDirection) {
@@ -164,12 +128,6 @@ export async function getPrescriptionById(
     params: { patientId },
   });
   const Etag = extractEtag(res.headers);
-  console.log("Prescription GET Etag", {
-    id,
-    patientId,
-    Etag,
-    headers: res.headers,
-  });
 
   return { data: res.data, Etag, etag: Etag };
 }
@@ -182,7 +140,7 @@ export async function cancelPrescription(
   const res = await api.post(
     `/api/prescriptions/${id}/cancel`,
     reason ? { reason } : undefined,
-    { headers: { "If-Match": requireEtag(etag) } },
+    { headers: { "If-Match": formatIfMatch(etag) } },
   );
 
   return extractEtag(res.headers);

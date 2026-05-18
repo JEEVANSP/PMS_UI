@@ -4,7 +4,6 @@ import type {
   PrescriptionLineDto,
   PrescriptionSummaryDto,
 } from "@prescription/api";
-import type { ReviewPrescriptionRequestDto } from "@validation/api";
 import type { PrescriptionDraft } from "@prescription/types/models";
 import type {
   PrescriptionDetails,
@@ -168,9 +167,11 @@ export function mapDraftToCreateDto(
   };
 }
 
-export function mapReviewToDto(
-  reviews: PrescriptionLineReviewDraft[]
-): ReviewPrescriptionRequestDto {
+export function mapSeverityFromLine(line: PrescriptionLine): ValidationSeverity {
+  return toSeverity(line.validation.severity);
+}
+
+export function mapReviewToDto(reviews: PrescriptionLineReviewDraft[]) {
   return {
     reviews: reviews
       .map((review) => ({
@@ -180,8 +181,4 @@ export function mapReviewToDto(
       }))
       .filter((review) => review.prescriptionLineId.trim().length > 0),
   };
-}
-
-export function mapSeverityFromLine(line: PrescriptionLine): ValidationSeverity {
-  return toSeverity(line.validation.severity);
 }

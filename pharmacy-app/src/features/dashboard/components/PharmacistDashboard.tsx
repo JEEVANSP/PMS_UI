@@ -1,6 +1,5 @@
 // PharmacistDashboard.tsx
-import { useMemo, useEffect } from "react";
-import { useAppDispatch } from "@app/store";
+import { useMemo } from "react";
 import {
   FileText,
   Clock,
@@ -17,15 +16,11 @@ import type { PrescriptionSummary } from "@prescription/domain/model";
 import { isSameDay } from "@dashboard/utils/dashboardUtils";
 import { useDashboardData } from "@dashboard/hooks/useDashboardData";
 
-import { fetchAllPrescriptions } from "@prescription/slices"; 
-
 /* ---------------------------------- */
 /* Component */
 /* ---------------------------------- */
 
 export default function PharmacistDashboard() {
-  const dispatch = useAppDispatch();
-
   const {
     prescriptions: allPrescriptions,
     requestStatus,
@@ -56,23 +51,6 @@ export default function PharmacistDashboard() {
     pending: 0,
     todayTotal: 0
   };
-
-  /* ---------------------------------- */
-  /* Initial Data Fetch */
-  /* ---------------------------------- */
-
-  useEffect(() => {
-    // Fetch all recent prescriptions without date filter
-    // The backend will return recent ones and we filter client-side
-    dispatch(
-      fetchAllPrescriptions({
-        pageNumber: 1,
-        pageSize: 10,
-        sortBy: "createdAt",
-        sortDirection: "desc",
-      })
-    );
-  }, [dispatch]);
 
   /* ---------------------------------- */
   /* Table Columns */

@@ -180,54 +180,54 @@ function reducer(state: ValidationUIState, action: Action): ValidationUIState {
 }
 
 export function useValidationUiState() {
-  const [ui, dispatch] = useReducer(reducer, undefined, createInitialUIState);
+  const [ui, send] = useReducer(reducer, undefined, createInitialUIState);
 
   const init = useCallback((data: PrescriptionDetails) => {
-    dispatch({ type: "INIT", payload: data });
+    send({ type: "INIT", payload: data });
   }, []);
 
   const acceptLine = useCallback((id: string) => {
-    dispatch({ type: "ACCEPT_LINE", id });
+    send({ type: "ACCEPT_LINE", id });
   }, []);
 
   const openRejectLine = useCallback((id: string) => {
-    dispatch({ type: "OPEN_REJECT_LINE", id });
+    send({ type: "OPEN_REJECT_LINE", id });
   }, []);
 
   const closeRejectLine = useCallback(() => {
-    dispatch({ type: "CLOSE_REJECT_LINE" });
+    send({ type: "CLOSE_REJECT_LINE" });
   }, []);
 
   const confirmRejectLine = useCallback((id: string) => {
-    dispatch({ type: "CONFIRM_REJECT_LINE", id });
+    send({ type: "CONFIRM_REJECT_LINE", id });
   }, []);
 
   const setReason = useCallback((key: string, value: string) => {
-    dispatch({ type: "SET_REASON", key, value });
+    send({ type: "SET_REASON", key, value });
   }, []);
 
   const clearReason = useCallback((key: string) => {
-    dispatch({ type: "CLEAR_REASON", key });
+    send({ type: "CLEAR_REASON", key });
   }, []);
 
   const openRejectAll = useCallback((force = false) => {
-    dispatch({ type: "OPEN_REJECT_ALL", force });
+    send({ type: "OPEN_REJECT_ALL", force });
   }, []);
 
   const closeRejectAll = useCallback(() => {
-    dispatch({ type: "CLOSE_REJECT_ALL" });
+    send({ type: "CLOSE_REJECT_ALL" });
   }, []);
 
   const rejectAll = useCallback((reason: string) => {
-    dispatch({ type: "REJECT_ALL", reason });
+    send({ type: "REJECT_ALL", reason });
   }, []);
 
   const openAllergy = useCallback((alert: AllergyAlert) => {
-    dispatch({ type: "OPEN_ALLERGY", alert });
+    send({ type: "OPEN_ALLERGY", alert });
   }, []);
 
   const closeAllergy = useCallback(() => {
-    dispatch({ type: "CLOSE_ALLERGY" });
+    send({ type: "CLOSE_ALLERGY" });
   }, []);
 
   const actions = useMemo(

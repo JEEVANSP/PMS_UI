@@ -4,7 +4,7 @@ import { CheckCircle2, ChevronLeft, XCircle } from "lucide-react";
 
 import { ROUTES } from "../../constants/routes";
 import { useToast } from "@shared/ui/toast";
-import { usePrescriptionDetails } from "@validation/hooks/usePrescriptionDetails";
+import { useValidationPrescriptionDetails } from "@validation/hooks/useValidationPrescriptionDetails";
 import { usePrescriptionReview } from "@validation/hooks/usePrescriptionReview";
 import { useValidationUiState } from "./hooks/useValidationUiState";
 import { formatDate } from "@shared/utils/formatDate";
@@ -33,7 +33,7 @@ export default function PrescriptionValidationDetailsPage() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const { data, Etag, loading, error, refetch } = usePrescriptionDetails(rxId, patientId);
+  const { data, etag, loading, error, refetch } = useValidationPrescriptionDetails(rxId, patientId);
   const { submitting, submitReview } = usePrescriptionReview();
 
   const { ui, actions } = useValidationUiState();
@@ -193,12 +193,7 @@ export default function PrescriptionValidationDetailsPage() {
       return;
     }
 
-    const effectiveEtag = Etag.trim();
-
-    console.log("Submit review Etag", {
-      localEtag: Etag,
-      resolved: effectiveEtag,
-    });
+    const effectiveEtag = etag.trim();
 
     const reviews = viewData.medicines.map((line) => ({
       prescriptionLineId: line.lineId,
@@ -232,7 +227,7 @@ export default function PrescriptionValidationDetailsPage() {
     toast.success("Success", "Prescription review submitted successfully.");
     navigate(ROUTES.PHARMACIST.VALIDATION, { state: { refresh: true } });
   }, [
-    Etag,
+    etag,
     navigate,
     patientId,
     refetch,
@@ -264,12 +259,7 @@ export default function PrescriptionValidationDetailsPage() {
       return;
     }
 
-    const effectiveEtag = Etag.trim();
-
-    console.log("Reject prescription Etag", {
-      localEtag: Etag,
-      resolved: effectiveEtag,
-    });
+    const effectiveEtag = etag.trim();
 
     actions.rejectAll(reason);
     const reviews = viewData.medicines.map((line) => ({
@@ -294,7 +284,7 @@ export default function PrescriptionValidationDetailsPage() {
     navigate(ROUTES.PHARMACIST.VALIDATION, { state: { refresh: true } });
   }, [
     actions,
-    Etag,
+    etag,
     navigate,
     patientId,
     refetch,

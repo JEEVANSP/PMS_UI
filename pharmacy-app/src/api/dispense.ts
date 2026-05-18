@@ -3,7 +3,7 @@
 
 import api from "@core/api/apiClient";
 import { ENDPOINTS } from "@core/api/endpoints";
-import { extractEtag } from "@prescription/api";
+import { extractEtag } from "@core/http/etag";
 import { logger } from "@core/logger/logger";
 
 // ── DTOs ──────────────────────────────────────────────────────────────────────
