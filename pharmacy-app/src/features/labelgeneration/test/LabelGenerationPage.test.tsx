@@ -2,251 +2,148 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import LabelGenerationPage from "../components/LabelGeneration";
 
-type SelectedLabelDetails = {
-  dispenseId: string;
-  prescriptionId: string;
-  patientId: string;
-  patientName: string;
-  dispenseDate?: string;
-  status?: string;
-  pharmacistId?: string;
-  items: Array<{ id: number }>;
-};
+import type { DispenseLabel, LabelQueueItem } from "../domain";
 
 type QueueListProps = {
-  onSelect: (prescriptionId: string, patientId: string) => void;
+  items: LabelQueueItem[];
+  selectedId?: string | null;
+  onSelect: (dispenseId: string, patientId: string) => void;
 };
 
 type LabelPreviewProps = {
+  selected: DispenseLabel | null;
   onPrint: () => void;
   onDownload: () => void;
 };
 
-/* ---------------- HOISTED MOCKS ---------------- */
+const mockPrint = vi.hoisted(() => vi.fn());
+const mockDownloadPdf = vi.hoisted(() => vi.fn());
+const usePaidDispenseQueueMock = vi.hoisted(() => vi.fn());
+const useDispenseLabelMock = vi.hoisted(() => vi.fn());
+const useLabelPrintMock = vi.hoisted(() => vi.fn());
+const useLabelPdfMock = vi.hoisted(() => vi.fn());
 
-const toastMock = vi.hoisted(() => ({
-  warning: vi.fn(),
-  error: vi.fn(),
-  success: vi.fn(),
+const queueItem: LabelQueueItem = {
+  dispenseId: "DSP-001",
+  prescriptionId: "RX-001",
+  patientId: "P-001",
+  patientName: "John Doe",
+  dispenseDate: "2026-03-11T15:36:46.220Z",
+  status: "Paid",
+  itemCount: 1,
+  grandTotal: 10,
+};
+
+const label: DispenseLabel = {
+  dispenseId: "DSP-001",
+  prescriptionId: "RX-001",
+  patientId: "P-001",
+  patientName: "John Doe",
+  dispenseDate: "2026-03-11T15:36:46.220Z",
+  status: "Paid",
+  pharmacistId: "PH-001",
+  items: [],
+};
+
+vi.mock("@labels/hooks", () => ({
+  usePaidDispenseQueue: usePaidDispenseQueueMock,
+  useDispenseLabel: useDispenseLabelMock,
+  useLabelPrint: useLabelPrintMock,
+  useLabelPdf: useLabelPdfMock,
 }));
-
-const saveMock = vi.hoisted(() => vi.fn());
-
-/* ---------------- TOAST ---------------- */
-
-vi.mock("@shared/ui/toast", () => ({
-  toast: toastMock,
-}));
-
-/* ---------------- html2canvas ---------------- */
-
-vi.mock("html2canvas", () => ({
-  default: vi.fn(() =>
-    Promise.resolve({
-      toDataURL: () => "data:image/png;base64,test",
-      width: 100,
-      height: 100,
-    })
-  ),
-}));
-
-/* ---------------- jsPDF ---------------- */
-
-vi.mock("jspdf", () => ({
-  default: vi.fn().mockImplementation(() => ({
-    internal: {
-      pageSize: {
-        getWidth: () => 200,
-        getHeight: () => 200,
-      },
-    },
-    addPage: vi.fn(),
-    addImage: vi.fn(),
-    save: saveMock,
-  })),
-}));
-
-/* ---------------- STATE ---------------- */
-
-let selected: SelectedLabelDetails | null = null;
-
-const mockSelectById = vi.fn((id: string, patientId: string) => {
-  selected = {
-    dispenseId: "DSP-001",
-    prescriptionId: id,
-    patientId,
-    patientName: "John Doe",
-    dispenseDate: "2024-01-01",
-    status: "PaymentProcessed",
-    pharmacistId: "PH-001",
-    items: [],
-  };
-});
-
-/* ---------------- MOCK HOOKS ---------------- */
-
-vi.mock("@labels/hooks/useLabelQueue", () => ({
-  useLabelQueue: () => ({
-    prescriptions: [],
-    loading: false,
-    error: null,
-  }),
-}));
-
-vi.mock("@labels/hooks/useLabelPrescriptionDetails", () => ({
-  useLabelPrescriptionDetails: () => ({
-    selected,
-    loading: false,
-    error: null,
-    selectById: mockSelectById,
-  }),
-}));
-
-/* ---------------- COMPONENT MOCKS ---------------- */
 
 vi.mock("@labels/components/LabelQueueList", () => ({
-  LabelQueueList: ({ onSelect }: QueueListProps) => (
-    <button data-testid="select-btn" onClick={() => onSelect("RX-001", "P-001")}>
-      Select
-    </button>
+  LabelQueueList: ({ items, selectedId, onSelect }: QueueListProps) => (
+    <div>
+      <div data-testid="selected-id">{selectedId ?? "none"}</div>
+      <button
+        data-testid="select-btn"
+        onClick={() => onSelect(items[0].dispenseId, items[0].patientId)}
+        type="button"
+      >
+        Select
+      </button>
+    </div>
   ),
 }));
 
 vi.mock("@labels/components/LabelPreview", () => ({
-  LabelPreview: ({ onPrint, onDownload }: LabelPreviewProps) => (
+  LabelPreview: ({ selected, onPrint, onDownload }: LabelPreviewProps) => (
     <div>
-      <button data-testid="print-btn" onClick={onPrint}>
+      <div data-testid="preview-patient">
+        {selected?.patientName ?? "no label"}
+      </div>
+      <button data-testid="print-btn" onClick={onPrint} type="button">
         Print
       </button>
-      <button data-testid="download-btn" onClick={onDownload}>
+      <button data-testid="download-btn" onClick={onDownload} type="button">
         Download
       </button>
     </div>
   ),
 }));
 
-/* ---------------- TESTS ---------------- */
-
 describe("LabelGenerationPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    selected = null;
-    document.body.innerHTML = ""; // IMPORTANT CLEANUP
+
+    usePaidDispenseQueueMock.mockReturnValue({
+      items: [queueItem],
+      loading: false,
+      error: null,
+    });
+
+    useDispenseLabelMock.mockImplementation(
+      (dispenseId: string | null, patientId: string | null) => ({
+        label:
+          dispenseId === "DSP-001" && patientId === "P-001" ? label : null,
+        loading: false,
+        error: null,
+      })
+    );
+
+    useLabelPrintMock.mockReturnValue({
+      print: mockPrint,
+      isPrinting: false,
+    });
+
+    useLabelPdfMock.mockReturnValue({
+      downloadPdf: mockDownloadPdf,
+      isDownloading: false,
+    });
   });
 
   it("renders header", () => {
     render(<LabelGenerationPage />);
+
     expect(screen.getByText("Label Generation")).toBeInTheDocument();
   });
 
-  it("calls selectById when queue item selected", () => {
+  it("loads label details after a queue item is selected", async () => {
     render(<LabelGenerationPage />);
+
+    expect(useDispenseLabelMock).toHaveBeenLastCalledWith(null, null);
+
     fireEvent.click(screen.getByTestId("select-btn"));
 
-    expect(mockSelectById).toHaveBeenCalledWith("RX-001", "P-001");
-  });
-
-  it("shows warning when printing with no labels", () => {
-    render(<LabelGenerationPage />);
-    fireEvent.click(screen.getByTestId("print-btn"));
-
-    expect(toastMock.warning).toHaveBeenCalledWith(
-      "No Labels Found",
-      "Please select a prescription first."
-    );
-  });
-
-  it("shows warning when downloading without selection", () => {
-    render(<LabelGenerationPage />);
-    fireEvent.click(screen.getByTestId("download-btn"));
-
-    expect(toastMock.warning).toHaveBeenCalledWith(
-      "No Prescription Selected",
-      "Please select a prescription first."
-    );
-  });
-
-  it("shows warning when downloading with no labels", () => {
-    selected = {
-      dispenseId: "DSP-001",
-      prescriptionId: "RX-001",
-      patientId: "P-001",
-      patientName: "John Doe",
-      items: [],
-    };
-
-    render(<LabelGenerationPage />);
-    fireEvent.click(screen.getByTestId("download-btn"));
-
-    expect(toastMock.warning).toHaveBeenCalledWith(
-      "No Labels Found",
-      "No labels available to download."
-    );
-  });
-
-  it("opens print window when labels exist", () => {
-    selected = {
-      dispenseId: "DSP-001",
-      prescriptionId: "RX-001",
-      patientId: "P-001",
-      patientName: "John Doe",
-      items: [{ id: 1 }],
-    };
-
-    const label = document.createElement("div");
-    label.className = "print-label";
-    document.body.appendChild(label);
-
-    const mockWrite = vi.fn();
-    const mockClose = vi.fn();
-
-    const mockWindow = {
-      document: { write: mockWrite, close: mockClose },
-      focus: vi.fn(),
-      print: vi.fn(),
-    };
-
-    const openSpy = vi
-      .spyOn(window, "open")
-      .mockReturnValue(mockWindow as unknown as Window);
-
-    render(<LabelGenerationPage />);
-    fireEvent.click(screen.getByTestId("print-btn"));
-
-    expect(openSpy).toHaveBeenCalled();
-    expect(mockWrite).toHaveBeenCalled();
-
-    document.body.removeChild(label);
-  });
-
-  it("downloads pdf when labels exist", async () => {
-    selected = {
-      dispenseId: "DSP-001",
-      prescriptionId: "RX-001",
-      patientId: "P-001",
-      patientName: "John Doe",
-      items: [{ id: 1 }],
-    };
-
-    render(<LabelGenerationPage />);
-
-    const label = document.createElement("div");
-    label.className = "print-label";
-    document.body.appendChild(label);
-
-    // 🔥 CRITICAL: wait for DOM to be visible to querySelectorAll
     await waitFor(() => {
-      expect(document.querySelectorAll(".print-label").length).toBe(1);
+      expect(useDispenseLabelMock).toHaveBeenLastCalledWith(
+        "DSP-001",
+        "P-001"
+      );
     });
 
+    expect(screen.getByTestId("selected-id")).toHaveTextContent("DSP-001");
+    expect(screen.getByTestId("preview-patient")).toHaveTextContent("John Doe");
+  });
+
+  it("passes print and PDF callbacks from hooks", () => {
+    render(<LabelGenerationPage />);
+
+    fireEvent.click(screen.getByTestId("print-btn"));
     fireEvent.click(screen.getByTestId("download-btn"));
 
-    await waitFor(() => {
-      expect(saveMock).toHaveBeenCalledTimes(1);
-    });
-    expect(toastMock.success).toHaveBeenCalled();
-
-    document.body.removeChild(label);
+    expect(mockPrint).toHaveBeenCalledTimes(1);
+    expect(mockDownloadPdf).toHaveBeenCalledTimes(1);
   });
 });
-

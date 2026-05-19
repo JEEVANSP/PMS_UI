@@ -1,72 +1,30 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { getDispenseLabel, getPaidDispenseQueue } from "@labels/api";
 
-// SUT
-import {
-  getLabelQueue,
-  getDispenseLabels,
-} from "../label";
-
-// ---- Mocks ----
-vi.mock("@core/api/apiClient", () => {
-  return {
-    default: {
-      get: vi.fn(),
-    },
-  };
-});
-
-vi.mock("@core/api/endpoints", () => {
-  return {
-    ENDPOINTS: {
-      dispenses: "/api/dispenses",
-      dispenseLabel: (id: string) => `/api/dispenses/${id}/label`,
-    },
-  };
-});
-
-// Import mocked instances/types after vi.mock
 import api from "@core/api/apiClient";
 import { ENDPOINTS } from "@core/api/endpoints";
+import { logger } from "@core/logger/logger";
 
-// Types used in return values (optional for clarity in test data)
-type LabelQueuePrescription = {
-  id: string;
-  prescriptionId: string;
-  patientId: string;
-  patientName: string;
-  dispenseDate: string;
-  status: string;
-  itemCount: number;
-  grandTotal: number;
-};
-type LabelPrescriptionDetails = {
-  dispenseId: string;
-  prescriptionId: string;
-  patientId: string;
-  patientName: string;
-  dispenseDate: string;
-  status: string;
-  pharmacistId: string;
-  items: Array<{
-    prescriptionLineId: string;
-    productId: string;
-    productName: string;
-    frequency: string;
-    instructions: string;
-    refillNumber: number;
-    quantityDispensed: number;
-    isManualAdjustment: boolean;
-    lotsUsed: Array<{ lotId: string; quantity: number; expiry: string }>;
-    pricing: {
-      unitPrice: number;
-      total: number;
-      insurancePaid: number;
-      patientPayable: number;
-    };
-  }>;
-};
+vi.mock("@core/api/apiClient", () => ({
+  default: {
+    get: vi.fn(),
+  },
+}));
 
-describe("labels API", () => {
+vi.mock("@core/api/endpoints", () => ({
+  ENDPOINTS: {
+    dispenses: "/api/dispenses",
+    dispenseLabel: (id: string) => `/api/dispenses/${id}/label`,
+  },
+}));
+
+vi.mock("@core/logger/logger", () => ({
+  logger: {
+    error: vi.fn(),
+  },
+}));
+
+describe("label generation API", () => {
   const apiGet = api.get as unknown as ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
@@ -77,8 +35,8 @@ describe("labels API", () => {
     vi.restoreAllMocks();
   });
 
-  describe("getLabelQueue", () => {
-    it("calls dispenses endpoint with default pageSize (10) and default pageNumber/status", async () => {
+  describe("getPaidDispenseQueue", () => {
+    it("calls dispenses endpoint with paid status and queue paging", async () => {
       const mockResponse = {
         data: {
           items: [
@@ -88,117 +46,54 @@ describe("labels API", () => {
               patientId: "patient-1",
               patientName: "John Doe",
               dispenseDate: "2026-02-10T09:00:00.000Z",
-              status: "PaymentProcessed",
+              status: "Paid",
               itemCount: 2,
               grandTotal: 10,
             },
-          ] as LabelQueuePrescription[],
-          pageSize: 10,
+          ],
+          pageSize: 100,
           totalCount: 1,
         },
       };
       apiGet.mockResolvedValueOnce(mockResponse);
 
-      const result = await getLabelQueue(); // uses defaults
+      const result = await getPaidDispenseQueue();
 
       expect(apiGet).toHaveBeenCalledTimes(1);
       expect(apiGet).toHaveBeenCalledWith(ENDPOINTS.dispenses, {
         params: {
-          pageSize: 10,
+          status: "Paid",
           pageNumber: 1,
-          status: "PaymentProcessed",
+          pageSize: 100,
         },
       });
       expect(result).toEqual(mockResponse.data);
     });
 
-    it("passes provided pageSize and pageNumber via query params", async () => {
-      const mockResponse = {
-        data: {
-          items: [
-            {
-              id: "disp-1",
-              prescriptionId: "rx-1",
-              patientId: "patient-1",
-              patientName: "John Doe",
-              dispenseDate: "2026-02-10T09:00:00.000Z",
-              status: "PaymentProcessed",
-              itemCount: 2,
-              grandTotal: 10,
-            },
-          ] satisfies LabelQueuePrescription[],
-          pageSize: 50,
-          totalCount: 1,
-        },
-      };
-      apiGet.mockResolvedValueOnce(mockResponse);
+    it("wraps queue API errors with shared error handling", async () => {
+      const error = new Error("Queue fetch failed");
+      apiGet.mockRejectedValueOnce(error);
 
-      const res = await getLabelQueue(50, 3);
-
-      expect(apiGet).toHaveBeenCalledWith(ENDPOINTS.dispenses, {
-        params: { pageSize: 50, pageNumber: 3, status: "PaymentProcessed" },
-      });
-      expect(res).toEqual(mockResponse.data);
-    });
-
-    it("rethrows errors from the API call", async () => {
-      const err = new Error("Queue fetch failed");
-      apiGet.mockRejectedValueOnce(err);
-
-      await expect(getLabelQueue(10)).rejects.toThrow("Queue fetch failed");
-    });
-
-    it("works when API omits totalCount", async () => {
-      const mockResponse = {
-        data: {
-          items: [
-            {
-              id: "disp-2",
-              prescriptionId: "rx-2",
-              patientId: "patient-2",
-              patientName: "Jane Doe",
-              dispenseDate: "2026-02-10T10:00:00.000Z",
-              status: "PaymentProcessed",
-              itemCount: 1,
-              grandTotal: 12.5,
-            },
-          ] as LabelQueuePrescription[],
-          pageSize: 10,
-        },
-      };
-      apiGet.mockResolvedValueOnce(mockResponse);
-
-      const res = await getLabelQueue(10);
-
-      expect(res).toEqual({
-        items: [
-          {
-            id: "disp-2",
-            prescriptionId: "rx-2",
-            patientId: "patient-2",
-            patientName: "Jane Doe",
-            dispenseDate: "2026-02-10T10:00:00.000Z",
-            status: "PaymentProcessed",
-            itemCount: 1,
-            grandTotal: 12.5,
-          },
-        ],
-        pageSize: 10,
+      await expect(getPaidDispenseQueue()).rejects.toThrow(
+        "Queue fetch failed"
+      );
+      expect(logger.error).toHaveBeenCalledWith("getPaidDispenseQueue failed", {
+        error,
       });
     });
   });
 
-  describe("getDispenseLabels", () => {
-    it("calls dispenseLabel endpoint with given dispenseId/patientId and returns data", async () => {
+  describe("getDispenseLabel", () => {
+    it("calls dispense label endpoint with patientId", async () => {
       const dispenseId = "disp-123";
       const patientId = "patient-123";
-      const mockPayload: LabelPrescriptionDetails = {
+      const mockPayload = {
         dispenseId,
         prescriptionId: "rx-123",
         patientId,
         patientName: "John Doe",
         dispenseDate: "2026-03-11T15:36:46.220Z",
-        status: "PaymentProcessed",
+        status: "Paid",
         pharmacistId: "pharm-1",
         items: [
           {
@@ -223,56 +118,27 @@ describe("labels API", () => {
 
       apiGet.mockResolvedValueOnce({ data: mockPayload });
 
-      const res = await getDispenseLabels(dispenseId, patientId);
+      const result = await getDispenseLabel(dispenseId, patientId);
 
       expect(apiGet).toHaveBeenCalledTimes(1);
       expect(apiGet).toHaveBeenCalledWith(ENDPOINTS.dispenseLabel(dispenseId), {
         params: { patientId },
       });
-      expect(res).toEqual(mockPayload);
+      expect(result).toEqual(mockPayload);
     });
 
-    it("rethrows errors from the API call", async () => {
-      const err = new Error("Not Found");
-      apiGet.mockRejectedValueOnce(err);
+    it("wraps label API errors with shared error handling", async () => {
+      const error = new Error("Not Found");
+      apiGet.mockRejectedValueOnce(error);
 
-      await expect(getDispenseLabels("disp-err", "patient-err")).rejects.toThrow("Not Found");
-    });
-
-    it("handles minimal payloads (no optional fields)", async () => {
-      const minimal: LabelPrescriptionDetails = {
-        dispenseId: "disp-min",
-        prescriptionId: "rx-min",
-        patientId: "patient-min",
-        patientName: "Minimal",
-        dispenseDate: "2026-03-11T15:36:46.220Z",
-        status: "PaymentProcessed",
-        pharmacistId: "pharm-min",
-        items: [
-          {
-            prescriptionLineId: "line-1",
-            productId: "p-1",
-            productName: "Drug",
-            frequency: "OD",
-            instructions: "Take once daily",
-            refillNumber: 0,
-            quantityDispensed: 1,
-            isManualAdjustment: false,
-            lotsUsed: [],
-            pricing: {
-              unitPrice: 1,
-              total: 1,
-              insurancePaid: 0,
-              patientPayable: 1,
-            },
-          },
-        ],
-      };
-      apiGet.mockResolvedValueOnce({ data: minimal });
-
-      const res = await getDispenseLabels("disp-min", "patient-min");
-
-      expect(res).toEqual(minimal);
+      await expect(
+        getDispenseLabel("disp-err", "patient-err")
+      ).rejects.toThrow("Not Found");
+      expect(logger.error).toHaveBeenCalledWith("getDispenseLabel failed", {
+        dispenseId: "disp-err",
+        patientId: "patient-err",
+        error,
+      });
     });
   });
 });

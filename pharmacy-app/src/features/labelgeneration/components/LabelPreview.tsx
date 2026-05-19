@@ -1,16 +1,18 @@
-// src/features/labels/components/LabelPreview.tsx
-import { Download, Printer } from "lucide-react";
-import type { LabelPrescriptionDetails } from "@labels/types/label.types";
+import type { RefObject } from "react";
+
+import type { DispenseLabel } from "../domain";
+import { LabelPreviewToolbar } from "./LabelPreviewToolbar";
 import { MedicationLabelCard } from "./MedicationLabelCard";
 
 type Props = {
-  selected: LabelPrescriptionDetails | null;
+  selected: DispenseLabel | null;
   loading: boolean;
   error?: string | null;
   onPrint: () => void;
-  onDownload?: () => void;
+  onDownload: () => void;
   isPrinting?: boolean;
   isDownloading?: boolean;
+  labelContainerRef: RefObject<HTMLDivElement | null>;
 };
 
 export function LabelPreview({
@@ -21,38 +23,24 @@ export function LabelPreview({
   onDownload,
   isPrinting = false,
   isDownloading = false,
+  labelContainerRef,
 }: Props) {
   return (
     <div className="col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm">
       <div className="p-6 border-b border-gray-100 flex justify-between items-center">
         <h2 className="font-semibold text-gray-900">Label Preview</h2>
 
-        {selected && (
-          <div className="flex gap-2">
-            <button
-              onClick={onDownload}
-              disabled={isPrinting || isDownloading}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              type="button"
-            >
-              <Download size={16} className={isDownloading ? 'animate-bounce' : ''} />
-              {isDownloading ? 'Generating PDF...' : 'Download PDF'}
-            </button>
-
-            <button
-              onClick={onPrint}
-              disabled={isPrinting || isDownloading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-white bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              type="button"
-            >
-              <Printer size={16} />
-              {isPrinting ? 'Preparing...' : 'Print Label'}
-            </button>
-          </div>
+        {selected && !loading && (
+          <LabelPreviewToolbar
+            onPrint={onPrint}
+            onDownload={onDownload}
+            isPrinting={isPrinting}
+            isDownloading={isDownloading}
+          />
         )}
       </div>
 
-      <div className="p-6">
+      <div ref={labelContainerRef} className="p-6">
         {!selected && !loading && !error && (
           <div className="text-center py-12 text-gray-500">
             Select a dispense to preview labels
@@ -74,7 +62,7 @@ export function LabelPreview({
           selected.items.map((med) => (
             <MedicationLabelCard
               key={med.prescriptionLineId}
-              prescription={selected}
+              label={selected}
               medicine={med}
             />
           ))}

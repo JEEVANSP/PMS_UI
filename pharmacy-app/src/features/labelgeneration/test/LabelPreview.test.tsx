@@ -1,46 +1,88 @@
+import { createRef } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { LabelPreview } from "../components/LabelPreview";
-import type { LabelPrescriptionDetails } from "@labels/types/label.types";
 
-// Mock child component (unit isolation)
+import type { DispenseLabel } from "../domain";
+
 vi.mock("../components/MedicationLabelCard", () => ({
-  MedicationLabelCard: ({ medicine }: { medicine: { prescriptionLineId: string } }) => (
+  MedicationLabelCard: ({
+    medicine,
+  }: {
+    medicine: { prescriptionLineId: string };
+  }) => (
     <div data-testid="medication-card">
       Medicine: {medicine.prescriptionLineId}
     </div>
   ),
 }));
 
-describe("LabelPreview", () => {
-  const mockOnPrint = vi.fn();
-  const mockOnDownload = vi.fn();
-
-  const mockSelected: LabelPrescriptionDetails = {
+function createLabel(): DispenseLabel {
+  return {
     dispenseId: "dispense-1",
     prescriptionId: "prescription-1",
     patientId: "patient-1",
     patientName: "John Doe",
     dispenseDate: "2026-03-11T15:36:46.220Z",
-    status: "PaymentProcessed",
+    status: "Paid",
     pharmacistId: "pharmacist-1",
     items: [
-      { prescriptionLineId: "med-1" },
-      { prescriptionLineId: "med-2" },
+      {
+        prescriptionLineId: "med-1",
+        productId: "prod-1",
+        productName: "Drug 1",
+        frequency: "BID",
+        instructions: "Take twice daily",
+        refillNumber: 0,
+        quantityDispensed: 10,
+        isManualAdjustment: false,
+        lotsUsed: [],
+        pricing: {
+          unitPrice: 1,
+          total: 10,
+          insurancePaid: 5,
+          patientPayable: 5,
+        },
+      },
+      {
+        prescriptionLineId: "med-2",
+        productId: "prod-2",
+        productName: "Drug 2",
+        frequency: "OD",
+        instructions: "Take daily",
+        refillNumber: 0,
+        quantityDispensed: 5,
+        isManualAdjustment: false,
+        lotsUsed: [],
+        pricing: {
+          unitPrice: 2,
+          total: 10,
+          insurancePaid: 0,
+          patientPayable: 10,
+        },
+      },
     ],
-  } as LabelPrescriptionDetails;
+  };
+}
+
+describe("LabelPreview", () => {
+  const mockOnPrint = vi.fn();
+  const mockOnDownload = vi.fn();
+  const mockSelected = createLabel();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders empty state when no selection", () => {
+  it("renders empty state when no selection exists", () => {
     render(
       <LabelPreview
         selected={null}
         loading={false}
         error={null}
         onPrint={mockOnPrint}
+        onDownload={mockOnDownload}
+        labelContainerRef={createRef<HTMLDivElement>()}
       />
     );
 
@@ -56,12 +98,12 @@ describe("LabelPreview", () => {
         loading
         error={null}
         onPrint={mockOnPrint}
+        onDownload={mockOnDownload}
+        labelContainerRef={createRef<HTMLDivElement>()}
       />
     );
 
-    expect(
-      screen.getByText("Loading label details...")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Loading label details...")).toBeInTheDocument();
   });
 
   it("renders error state", () => {
@@ -71,6 +113,8 @@ describe("LabelPreview", () => {
         loading={false}
         error="Something went wrong"
         onPrint={mockOnPrint}
+        onDownload={mockOnDownload}
+        labelContainerRef={createRef<HTMLDivElement>()}
       />
     );
 
@@ -84,11 +128,12 @@ describe("LabelPreview", () => {
         loading={false}
         error={null}
         onPrint={mockOnPrint}
+        onDownload={mockOnDownload}
+        labelContainerRef={createRef<HTMLDivElement>()}
       />
     );
 
-    const cards = screen.getAllByTestId("medication-card");
-    expect(cards).toHaveLength(2);
+    expect(screen.getAllByTestId("medication-card")).toHaveLength(2);
   });
 
   it("calls onPrint when print button is clicked", () => {
@@ -98,14 +143,12 @@ describe("LabelPreview", () => {
         loading={false}
         error={null}
         onPrint={mockOnPrint}
+        onDownload={mockOnDownload}
+        labelContainerRef={createRef<HTMLDivElement>()}
       />
     );
 
-    const printButton = screen.getByRole("button", {
-      name: /print label/i,
-    });
-
-    fireEvent.click(printButton);
+    fireEvent.click(screen.getByRole("button", { name: /print label/i }));
 
     expect(mockOnPrint).toHaveBeenCalledTimes(1);
   });
@@ -118,14 +161,11 @@ describe("LabelPreview", () => {
         error={null}
         onPrint={mockOnPrint}
         onDownload={mockOnDownload}
+        labelContainerRef={createRef<HTMLDivElement>()}
       />
     );
 
-    const downloadButton = screen.getByRole("button", {
-      name: /download pdf/i,
-    });
-
-    fireEvent.click(downloadButton);
+    fireEvent.click(screen.getByRole("button", { name: /download pdf/i }));
 
     expect(mockOnDownload).toHaveBeenCalledTimes(1);
   });
@@ -137,15 +177,13 @@ describe("LabelPreview", () => {
         loading={false}
         error={null}
         onPrint={mockOnPrint}
+        onDownload={mockOnDownload}
         isPrinting
+        labelContainerRef={createRef<HTMLDivElement>()}
       />
     );
 
-    const printButton = screen.getByRole("button", {
-      name: /preparing/i,
-    });
-
-    expect(printButton).toBeDisabled();
+    expect(screen.getByRole("button", { name: /preparing/i })).toBeDisabled();
   });
 
   it("disables buttons when downloading", () => {
@@ -157,13 +195,12 @@ describe("LabelPreview", () => {
         onPrint={mockOnPrint}
         onDownload={mockOnDownload}
         isDownloading
+        labelContainerRef={createRef<HTMLDivElement>()}
       />
     );
 
-    const downloadButton = screen.getByRole("button", {
-      name: /generating pdf/i,
-    });
-
-    expect(downloadButton).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /generating pdf/i })
+    ).toBeDisabled();
   });
 });

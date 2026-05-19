@@ -1,16 +1,10 @@
-// src/features/labels/components/LabelQueueList.tsx
-import type { LabelQueuePrescription } from "@labels/types/label.types";
 import { formatDate } from "@shared/utils/formatDate";
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
-}
+import type { LabelQueueItem } from "../domain";
+import { formatCurrency } from "../utils/currency";
 
 type Props = {
-  prescriptions: LabelQueuePrescription[];
+  items: LabelQueueItem[];
   loading: boolean;
   error?: string | null;
   selectedId?: string | null;
@@ -18,7 +12,7 @@ type Props = {
 };
 
 export function LabelQueueList({
-  prescriptions,
+  items,
   loading,
   error,
   selectedId,
@@ -32,37 +26,39 @@ export function LabelQueueList({
 
       {loading && <div className="p-4 text-gray-500">Loading...</div>}
 
-      {!loading && error && (
-        <div className="p-4 text-red-600">{error}</div>
-      )}
+      {!loading && error && <div className="p-4 text-red-600">{error}</div>}
 
-      {!loading && !error && prescriptions.length === 0 && (
+      {!loading && !error && items.length === 0 && (
         <div className="p-4 text-gray-500">No dispenses ready for labels</div>
       )}
 
       <div className="divide-y divide-gray-100">
-        {prescriptions.map((rx) => {
-          const isActive = selectedId === rx.id;
+        {items.map((item) => {
+          const isActive = selectedId === item.dispenseId;
 
           return (
             <button
-              key={rx.id}
+              key={item.dispenseId}
               type="button"
-              onClick={() => onSelect(rx.id, rx.patientId)}
+              onClick={() => onSelect(item.dispenseId, item.patientId)}
               className={`w-full p-4 text-left transition-colors ${
                 isActive ? "bg-blue-50" : "hover:bg-gray-50"
               }`}
             >
-              <div className="font-medium text-gray-900">{rx.patientName}</div>
-              <div className="text-sm text-gray-600">Dispense ID: {rx.id}</div>
-              <div className="text-sm text-gray-600">Prescription ID: {rx.prescriptionId}</div>
+              <div className="font-medium text-gray-900">{item.patientName}</div>
+              <div className="text-sm text-gray-600">
+                Dispense ID: {item.dispenseId}
+              </div>
+              <div className="text-sm text-gray-600">
+                Prescription ID: {item.prescriptionId}
+              </div>
               <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
-                <span>{formatDate(rx.dispenseDate)}</span>
-                <span>{rx.itemCount} item(s)</span>
+                <span>{formatDate(item.dispenseDate)}</span>
+                <span>{item.itemCount} item(s)</span>
               </div>
               <div className="mt-1 flex items-center justify-between text-xs uppercase tracking-wide text-gray-400">
-                <span>{rx.status}</span>
-                <span>{formatCurrency(rx.grandTotal)}</span>
+                <span>{item.status}</span>
+                <span>{formatCurrency(item.grandTotal)}</span>
               </div>
             </button>
           );
