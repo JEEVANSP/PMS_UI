@@ -6,7 +6,9 @@ export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // required for redux-persist
+      serializableCheck: {
+        ignoredActions: ["persist/PERSIST"],
+      },
     }),
 });
 

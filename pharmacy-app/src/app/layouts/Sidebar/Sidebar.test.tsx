@@ -1,24 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Sidebar from "@app/layouts/Sidebar/Sidebar";
 import type { User } from "@auth/types";
 
-let mockCollapsed = false;
-
 const mockDispatch = vi.fn();
 const mockNavigate = vi.fn();
-
-vi.mock("react-redux", () => {
-  type MockState = { ui: { sidebarCollapsed: boolean } };
-  return {
-    useDispatch: () => mockDispatch,
-    useSelector: (selector: (state: MockState) => unknown) =>
-      selector({
-        ui: { sidebarCollapsed: mockCollapsed },
-      }),
-  };
-});
 
 vi.mock("@auth/slices", () => ({
   default: (state = {}) => state,
@@ -26,9 +13,8 @@ vi.mock("@auth/slices", () => ({
   serverLogout: () => ({ type: "auth/serverLogout" }),
 }));
 
-vi.mock("@app/store/ui/uiSlice", () => ({
-  default: (state = {}) => state,
-  toggleSidebar: () => ({ type: "ui/toggleSidebar" }),
+vi.mock("@app/store", () => ({
+  useAppDispatch: () => mockDispatch,
 }));
 
 vi.mock("react-router-dom", async () => {
@@ -39,9 +25,7 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-function setup(user: User, collapsed = false) {
-  mockCollapsed = collapsed;
-
+function setup(user: User) {
   return render(
     <MemoryRouter>
       <Sidebar user={user} />
@@ -50,11 +34,6 @@ function setup(user: User, collapsed = false) {
 }
 
 describe("Sidebar Component", () => {
-  beforeEach(() => {
-    mockDispatch.mockClear();
-    mockNavigate.mockClear();
-  });
-
   it("renders pharmacist navigation items", () => {
     setup({ role: "pharmacist" } as User);
 
@@ -80,19 +59,27 @@ describe("Sidebar Component", () => {
     expect(screen.getByText("Inventory Management")).toBeInTheDocument();
   });
 
-  it("dispatches toggleSidebar when clicking collapse button", () => {
+  it("toggles sidebar collapse state when clicking button", () => {
     setup({ role: "pharmacist" } as User);
 
-    fireEvent.click(screen.getAllByRole("button")[0]);
+    // Initially expanded - labels should be visible
+    expect(screen.getByText("Dashboard")).toBeInTheDocument();
+    expect(screen.getByText("Menu")).toBeInTheDocument();
 
-    expect(mockDispatch).toHaveBeenCalledWith({ type: "ui/toggleSidebar" });
+    // Click collapse button
+    const buttons = screen.getAllByRole("button");
+    fireEvent.click(buttons[0]);
+
+    // After collapse - labels should be hidden
+    expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
+    expect(screen.queryByText("Menu")).not.toBeInTheDocument();
   });
 
-  it("hides labels when collapsed", () => {
-    setup({ role: "pharmacist" } as User, true);
+  it("shows labels when expanded", () => {
+    setup({ role: "pharmacist" } as User);
 
-    expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
-    expect(screen.queryByText("Manual Prescription Entry")).not.toBeInTheDocument();
+    expect(screen.getByText("Dashboard")).toBeInTheDocument();
+    expect(screen.getByText("Manual Prescription Entry")).toBeInTheDocument();
   });
 
   it("dispatches logout and navigates to /login", () => {
@@ -111,7 +98,10 @@ describe("Sidebar Component", () => {
   });
 
   it("hides footer when collapsed", () => {
-    setup({ role: "pharmacist" } as User, true);
+    setup({ role: "pharmacist" } as User);
+
+    const buttons = screen.getAllByRole("button");
+    fireEvent.click(buttons[0]);
 
     expect(screen.queryByText("Copyright 2025 Pharmacy App")).not.toBeInTheDocument();
   });

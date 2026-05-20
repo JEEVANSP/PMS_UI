@@ -12,12 +12,13 @@ import {
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { ChevronLeft, ChevronRight, Pill } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@app/store";
-import { toggleSidebar } from "@app/store/ui/uiSlice";
+import { useAppDispatch } from "@app/store";
 import type { User, UserRole } from "@auth/types";
 
 interface SidebarProps {
   user: User;
+  collapsed: boolean;
+  onToggle: () => void;
 }
 
 const roleNavItems: Record<
@@ -46,8 +47,7 @@ const roleNavItems: Record<
   ],
 };
 
-export default function Sidebar({ user }: SidebarProps) {
-  const collapsed = useAppSelector((s) => s.ui.sidebarCollapsed);
+export default function Sidebar({ user, collapsed, onToggle }: SidebarProps) {
   const navigate = useNavigate();
   const navItems = roleNavItems[user.role];
   const dispatch = useAppDispatch();
@@ -62,7 +62,7 @@ export default function Sidebar({ user }: SidebarProps) {
       <div className="px-3 py-2 border-b flex justify-between items-center">
         {!collapsed && <span className="font-semibold">Menu</span>}
         <button
-          onClick={() => dispatch(toggleSidebar())}
+          onClick={onToggle}
           className="flex items-center justify-center text-gray-600 hover:text-gray-900 w-10 h-8"
         >
           {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}

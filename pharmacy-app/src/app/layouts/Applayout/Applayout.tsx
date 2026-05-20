@@ -1,11 +1,12 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useAppSelector } from "@app/store";
 import Sidebar from "../Sidebar/Sidebar";
 import TopNavBar from "../TopNavBar/TopNavBar";
 
 export default function AppLayout() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const user = useAppSelector((s) => s.auth.user);
-  const sidebarCollapsed = useAppSelector((s) => s.ui.sidebarCollapsed);
 
   if (!user) return null;
 
@@ -26,6 +27,8 @@ export default function AppLayout() {
           role: user.role,
           avatarUrl: user.avatarUrl,
         }}
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
 
       {/* Main content area shifted for navbar + sidebar */}
